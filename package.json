@@ -1,9 +1,9 @@
 {
-  "name": "douyudanmu",
+  "name": "douyudm",
   "version": "0.0.1",
   "description": "实时获取斗鱼弹幕",
   "bin": {
-    "douyudanmu": "bin/index.js"
+    "douyudm": "cmd/index.js"
   },
   "main": "src/index.js",
   "author": {
@@ -23,5 +23,12 @@
   "publishConfig": {
     "registry": "https://registry.npmjs.org/",
     "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/flxxyz/douyudm"
+  },
+  "bugs": {
+    "url": "https://github.com/flxxyz/douyudm/issues"
   }
 }
