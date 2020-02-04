@@ -11,6 +11,7 @@ class Client {
         this.ws = null
         this.heartbeatTask = null
         this.messageEvent = messageEvent
+        this.ignore = []
     }
 
     initSocket() {
@@ -50,7 +51,6 @@ class Client {
 
     heartbeat() {
         this.heartbeatTask = setInterval(() => {
-            // console.log('----------------{{{ ♥ }}}----------------')
             this.send({
                 type: 'mrkl'
             })
@@ -65,6 +65,22 @@ class Client {
 
     run() {
         this.initSocket()
+    }
+
+    setIgnore(key, value) {
+        if (stt.isType(key, 'object')) {
+            for (let i in key) {
+                if (key[i]) {
+                    this.ignore.push(i)
+                }
+            }
+        } else {
+            if (value) {
+                this.ignore.push(key)
+            }
+        }
+
+        return this
     }
 }
 

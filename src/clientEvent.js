@@ -1,5 +1,3 @@
-const cluster = require('cluster')
-
 function open() {
     console.log('弹幕服务器连接成功……')
     this.login()
@@ -20,7 +18,10 @@ function close() {
 async function message(data) {
     let r = await this.getMessage(data)
     // console.log('message() event', r)
-    if (Object.keys(this.messageEvent).includes(r.type)) {
+
+    if (Object.keys(this.messageEvent).filter(v => {
+            return !this.ignore.includes(v)
+        }).includes(r.type)) {
         this.messageEvent[r.type](r)
     }
 }

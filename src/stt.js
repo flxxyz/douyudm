@@ -48,7 +48,12 @@ function deserialize(raw) {
     kv_pairs = raw.split('/')
     for (let i in kv_pairs) {
         let temp = kv_pairs[i]
-        if (temp.length === 0) {
+        try {
+            if (temp.length === 0) {
+                continue
+            }
+        } catch (e) {
+            console.error('deserialize()', typeof kv_pairs, kv_pairs, raw)
             continue
         }
 
