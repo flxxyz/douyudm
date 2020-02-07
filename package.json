@@ -1,6 +1,6 @@
 {
   "name": "douyudm",
-  "version": "0.0.2",
+  "version": "1.0.1",
   "description": "实时获取斗鱼弹幕",
   "bin": {
     "douyudm": "src/cmd.js"
@@ -13,7 +13,13 @@
   "license": "MIT",
   "keywords": [
     "douyu",
-    "danmu"
+    "danmu",
+    "斗鱼",
+    "弹幕",
+    "stt",
+    "serialize",
+    "deserialize",
+    "序列化"
   ],
   "dependencies": {
     "commander": "^4.1.0",
