@@ -1,7 +1,10 @@
 const testObj = {
     'type': 'loginreq',
-    'room_id': '123',
-    'dfl': 'sn@A=105@Sss@A=1',
+    'room_id': '102965',
+    'dfl': {
+        sn: 105,
+        ss: 1,
+    },
     'username': 'visitor9986987',
     'uid': '1167614891',
     'ver': '20190610',
@@ -9,31 +12,37 @@ const testObj = {
     'ct': '0'
 }
 
+const testStr = 'uid@=1167614891/rid@=102965/cate_id@=15/rid@=-1/ri@=sc@A=4555100@Sidx@A=42@S/type@=rri/'
+
 function isType(p, type) {
     return Object.prototype.toString.call(p).slice(8, -1).toLocaleLowerCase() === type.toLocaleLowerCase()
 }
 
 function escape(value) {
     value = value.toString()
-    value = value.replace('@', '@A')
-    value = value.replace('/', '@S')
+    value = value.replace(/@/g, '@A')
+    value = value.replace(/\//g, '@S')
     return value
 }
 
 function unescape(value) {
     value = value.toString()
-    value = value.replace('@A', '@')
-    value = value.replace('@S', '/')
+    value = value.replace(/@A/g, '@')
+    value = value.replace(/@S/g, '/')
     return value
 }
 
 function serialize(data) {
     if (isType(data, 'object')) {
-        const arr = []
-        for (let k in data) arr.push(`${escape(k)}@=${escape(data[k])}`)
-        return arr.join('/') + '/'
+        let str = ''
+        for (let [key, value] of Object.entries(data)) {
+            str += `${escape(serialize(key))}@=${escape(serialize(value))}/`
+        }
+        return str
     } else if (isType(data, 'array')) {
-        return data.join('/') + '/'
+        return data.map(value => `${escape(serialize(value))}/`).join('')
+    } else if (isType(data, 'string') || isType(data, 'number')) {
+        return data.toString()
     } else {
         return ''
     }
@@ -41,43 +50,19 @@ function serialize(data) {
 
 function deserialize(raw) {
     const result = {}
-    if (typeof raw === 'undefined' || raw.length <= 0) {
+    if (isType(result, 'undefined') || raw.length <= 0) {
         return result
     }
 
-    kv_pairs = raw.split('/')
-    for (let i in kv_pairs) {
-        let temp = kv_pairs[i]
-        try {
-            if (temp.length === 0) {
-                continue
-            }
-        } catch (e) {
-            console.error('deserialize()', typeof kv_pairs, kv_pairs, raw)
-            continue
+    let arr = raw.split('/')
+    for (let i = arr.length - 2; i >= 0; i--) {
+        let item = arr[i].split('@=')
+        let k = item[0]
+        let v = item[1]
+        if (/^\w+@A=(.*?)@S$/.test(v)) {
+            v = deserialize(unescape(v))
         }
-
-        temp = temp.split('@=')
-        if (temp.length !== 2) {
-            continue
-        }
-
-        const key = unescape(temp[0])
-        let value = unescape(temp[1])
-        if (!key) {
-            continue
-        }
-        if (!value) {
-            value = ''
-        }
-        try {
-            if (value.includes('@=')) {
-                value = deserialize(value)
-            }
-        } catch (e) {
-            continue
-        }
-        result[key] = value
+        result[k] = v
     }
 
     return result
@@ -85,6 +70,7 @@ function deserialize(raw) {
 
 module.exports = {
     testObj,
+    testStr,
     isType,
     serialize,
     deserialize,
