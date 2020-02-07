@@ -12,13 +12,27 @@ class Client {
         this.heartbeatTask = null
         this.messageEvent = messageEvent
         this.ignore = []
+        this.systemEvent = {
+            connect: {
+                name: 'open',
+                listener: event.open
+            },
+            disconnect: {
+                name: 'close',
+                listener: event.close
+            },
+            error: {
+                name: 'error',
+                listener: event.error
+            },
+        }
     }
 
     initSocket() {
         this.ws = new WebSocket(config.URL)
-        this.ws.on('open', event.open.bind(this))
-        this.ws.on('error', event.error.bind(this))
-        this.ws.on('close', event.close.bind(this))
+        this.ws.on('open', this.systemEvent.connect.listener.bind(this))
+        this.ws.on('error', this.systemEvent.error.listener.bind(this))
+        this.ws.on('close', this.systemEvent.disconnect.listener.bind(this))
         this.ws.on('message', event.message.bind(this))
     }
 
@@ -81,6 +95,39 @@ class Client {
         }
 
         return this
+    }
+
+    on(method, callback) {
+        let systemEventName = Object.keys(this.systemEvent).find(systemEvent => {
+            return systemEvent === method.toLocaleLowerCase()
+        })
+        if (systemEventName) {
+            //在创建连接是触发connect事件时，发送登入，加入组，监听心跳消息
+            if (systemEventName === 'connect') {
+                let cb = callback
+                callback = function (res) {
+                    this.login()
+                    this.joinGroup()
+                    this.heartbeat()
+                    cb.bind(this)(res)
+                }
+            } else if (systemEventName === 'disconnect') {
+                let cb = callback
+                callback = function (res) {
+                    clearInterval(this.heartbeatTask)
+                    this.logout()
+                    cb.bind(this)(res)
+                }
+            }
+            this.systemEvent[method].listener = callback.bind(this)
+        }
+
+        let messageEventName = Object.keys(this.messageEvent).find(messageEvent => {
+            return messageEvent === method.toLocaleLowerCase()
+        })
+        if (messageEventName) {
+            this.messageEvent[method] = callback.bind(this)
+        }
     }
 }
 

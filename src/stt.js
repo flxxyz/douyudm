@@ -1,19 +1,3 @@
-const testObj = {
-    'type': 'loginreq',
-    'room_id': '102965',
-    'dfl': {
-        sn: 105,
-        ss: 1,
-    },
-    'username': 'visitor9986987',
-    'uid': '1167614891',
-    'ver': '20190610',
-    'aver': '218101901',
-    'ct': '0'
-}
-
-const testStr = 'uid@=1167614891/rid@=102965/cate_id@=15/rid@=-1/ri@=sc@A=4555100@Sidx@A=42@S/type@=rri/'
-
 function isType(p, type) {
     return Object.prototype.toString.call(p).slice(8, -1).toLocaleLowerCase() === type.toLocaleLowerCase()
 }
@@ -69,9 +53,6 @@ function deserialize(raw) {
 }
 
 module.exports = {
-    testObj,
-    testStr,
-    isType,
     serialize,
     deserialize,
 }

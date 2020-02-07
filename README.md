@@ -1,16 +1,123 @@
 # douyudanmu
 实时获取斗鱼弹幕
 
-## 安装
-```
+## 安装(命令行)
+```shell
 npm i -g douyudm
 ```
 
-## 使用
-```
+## 使用(命令行)
+通过命令行监听，默认显示
+```shell
 douyudm -i 房间号
 ```
 更多命令查看 `douyudm --help`
+
+## 安装(API)
+```shell
+npm i douyudm
+or
+yarn add douyudm
+```
+
+## 使用(API)
+通过库调用自行封装
+```javascript
+//引入类库
+const douyu = require('douyudm')
+
+//设置房间号，初始化
+const roomId = 102965
+const room = new douyu(roomId)
+
+//系统事件
+room.on('connect', function () {
+    console.log('[connect] roomId=%s', this.roomId)
+})
+room.on('disconnect', function () {
+    console.log('[disconnect] roomId=%s', this.roomId)
+})
+room.on('error', function(err) {
+    console.log('[error] roomId=%s', this.roomId)
+})
+
+//消息事件
+room.on('chatmsg', function(res) {
+    console.log('[chatmsg]', `<lv ${res.level}> [${res.nn}] ${res.txt}`)
+})
+room.on('loginres', function(res) {
+    console.log('[loginres]', '登录成功')
+})
+room.on('uenter', function(res) {
+    console.log('[uenter]', `${res.nn}进入房间`)
+})
+
+//开始监听
+room.run()
+```
+
+## 事件列表
+|  系统事件  |   描述   |
+|:----------:|:--------:|
+|  connect   |   连接   |
+| disconnect |   断开   |
+|   error    | 错误监听 |
+
+- - -
+
+|    消息事件    |        描述         |
+|:--------------:|:-------------------:|
+|    loginres    |        登入         |
+|    chatmsg     |      弹幕消息       |
+|     uenter     |      进入房间       |
+|    upgrade     |    用户等级提升     |
+|      rss       |    房间开播提醒     |
+| bc_buy_deserve |    赠送酬勤通知     |
+|      ssd       |      超级弹幕       |
+|      spbc      |   房间内礼物广播    |
+|      dgb       |      赠送礼物       |
+|   onlinegift   |    领取在线鱼丸     |
+|      ggbb      |   房间用户抢红包    |
+|     rankup     | 房间内top10变化消息 |
+|    ranklist    |   广播排行榜消息    |
+
+## 斗鱼STT序列化反序列化库
+```javascript
+//引入类库
+const douyu = require('douyudm')
+
+//序列化测试数据
+const obj = {
+    'type': 'loginreq',
+    'room_id': '102965',
+    'dfl': {
+        sn: 105,
+        ss: 1,
+    },
+    'username': 'visitor9986987',
+    'uid': '1167614891',
+    'ver': '20190610',
+    'aver': '218101901',
+    'ct': '0'
+}
+console.log(douyu.stt.serialize(obj))
+// 输出: type@=loginreq/room_id@=102965/dfl@=sn@A=105@Sss@A=1@S/username@=visitor9986987/uid@=1167614891/ver@=20190610/aver@=218101901/ct@=0/
+
+//反序列化测试数据
+const str = 'uid@=1167614891/rid@=102965/cate_id@=15/rid@=-1/ri@=sc@A=4555100@Sidx@A=42@S/type@=rri/'
+console.log(douyu.stt.deserialize(str))
+// 输出: 
+// {
+//     type: 'rri',
+//     ri: {
+//         idx: '42',
+//         sc: '4555100'
+//     },
+//     rid: '102965',
+//     cate_id: '15',
+//     uid: '1167614891'
+// }
+```
 
 ## 提醒
 - 使用yarn全局安装可能会无法使用

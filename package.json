@@ -3,7 +3,7 @@
   "version": "0.0.2",
   "description": "实时获取斗鱼弹幕",
   "bin": {
-    "douyudm": "cmd/index.js"
+    "douyudm": "src/cmd.js"
   },
   "main": "src/index.js",
   "author": {
