@@ -53,6 +53,7 @@ function deserialize(raw) {
 }
 
 module.exports = {
+    isType,
     serialize,
     deserialize,
 }
