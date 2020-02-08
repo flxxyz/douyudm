@@ -9,7 +9,6 @@ function error(err) {
 }
 
 function close() {
-    clearInterval(this.heartbeatTask)
     this.logout()
 }
 

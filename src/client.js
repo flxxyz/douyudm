@@ -75,6 +75,9 @@ class Client {
         this.send({
             type: 'logout',
         })
+
+        clearInterval(this.heartbeatTask)
+        this.ws.close()
     }
 
     run() {
@@ -114,7 +117,6 @@ class Client {
             } else if (systemEventName === 'disconnect') {
                 let cb = callback
                 callback = function (res) {
-                    clearInterval(this.heartbeatTask)
                     this.logout()
                     cb.bind(this)(res)
                 }
