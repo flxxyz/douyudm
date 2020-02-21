@@ -1,9 +1,14 @@
 {
   "name": "douyudm",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "实时获取斗鱼弹幕",
   "bin": {
     "douyudm": "src/cmd.js"
+  },
+  "scripts": {
+    "example:cli": "node example/cli.js",
+    "example:web": "node example/web.js",
+    "example:stt": "node example/stt.js"
   },
   "main": "src/index.js",
   "author": {
