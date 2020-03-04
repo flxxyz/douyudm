@@ -73,16 +73,16 @@ function newRoom(roomId) {
         console.log('[error] roomId=%s', this.roomId)
     })
     room.on('chatmsg', function (res) {
-        // console.log('[chatmsg]', `<lv ${res.level}> [${res.nn}] ${res.txt}`)
-        // ws.send(`[chatmsg] <lv ${res.level}> [${res.nn}] ${res.txt}`)
+        console.log('[chatmsg]', `<lv ${res.level}> [${res.nn}] ${res.txt}`)
+        ws.send(`[chatmsg] <lv ${res.level}> [${res.nn}] ${res.txt}`)
     })
     room.on('loginres', function (res) {
         console.log('[loginres]', '登录成功')
         ws.send('[loginres] 登录成功')
     })
     room.on('uenter', function (res) {
-        // console.log('[uenter]', `${res.nn}进入房间`)
-        // ws.send(`[uenter] ${res.nn}进入房间`)
+        console.log('[uenter]', `${res.nn}进入房间`)
+        ws.send(`[uenter] ${res.nn}进入房间`)
     })
     room.on('dgb', function (res) {
         //斗鱼的礼物过多无法全部记录，20000以后可以判断为鱼翅购买，其他为系统赠送
