@@ -1,4 +1,4 @@
-const WebSocket = require('ws')
+const websocket = require('./websocket')
 const config = require('./config')
 const event = require('./clientEvent')
 const stt = require('./stt')
@@ -29,7 +29,7 @@ class Client {
     }
 
     initSocket() {
-        this.ws = new WebSocket(config.URL)
+        this.ws = new websocket(config.URL)
         this.ws.on('open', this.clientEvent.connect.listener.bind(this))
         this.ws.on('error', this.clientEvent.error.listener.bind(this))
         this.ws.on('close', this.clientEvent.disconnect.listener.bind(this))
@@ -101,9 +101,7 @@ class Client {
     }
 
     on(method, callback) {
-        let clientEventName = Object.keys(this.clientEvent).find(clientEvent => {
-            return clientEvent === method.toLocaleLowerCase()
-        })
+        let clientEventName = Object.keys(this.clientEvent).find(clientEvent => clientEvent === method.toLocaleLowerCase())
         if (clientEventName) {
             //在创建连接是触发connect事件时，发送登入，加入组，监听心跳消息
             if (clientEventName === 'connect') {
@@ -124,9 +122,7 @@ class Client {
             this.clientEvent[method].listener = callback.bind(this)
         }
 
-        let messageEventName = Object.keys(this.messageEvent).find(messageEvent => {
-            return messageEvent === method.toLocaleLowerCase()
-        })
+        let messageEventName = Object.keys(this.messageEvent).find(messageEvent => messageEvent === method.toLocaleLowerCase())
         if (messageEventName) {
             this.messageEvent[method] = callback.bind(this)
         }
