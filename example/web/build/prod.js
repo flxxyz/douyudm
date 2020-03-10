@@ -4,7 +4,6 @@ module.exports = {
     mode: 'production',
     // devtool: 'eval',
     optimization: {
-        minimizer: true,
         minimizer: [
             new UglifyJSPlugin({
                 uglifyOptions: {

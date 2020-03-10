@@ -1,4 +1,4 @@
-const douyu = require('../../src/index')
+import douyu from 'douyudm'
 
 (function () {
     var room = null
