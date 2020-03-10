@@ -1,6 +1,6 @@
 {
   "name": "douyudm",
-  "version": "1.0.4-beta.1",
+  "version": "1.0.4-beta.2",
   "description": "实时获取斗鱼弹幕",
   "bin": {
     "douyudm": "src/cmd.js"
@@ -29,6 +29,7 @@
     "序列化"
   ],
   "dependencies": {
+    "@babel/runtime": "^7.8.7",
     "commander": "^4.1.0",
     "fast-text-encoding": "^1.0.0",
     "ws": "^7.2.1"
