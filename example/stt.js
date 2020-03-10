@@ -1,5 +1,5 @@
 //引入类库
-const douyu = require('douyudm')
+const douyu = require('../src/index')
 
 //序列化测试数据
 const obj = {

@@ -6,13 +6,6 @@
     "douyudm": "src/cmd.js"
   },
   "main": "src/index.js",
-  "scripts": {
-    "build": "npx webpack --env prod --mode production --config build/index.js --colors --progress",
-    "dev": "npx webpack --env dev --mode development --config build/index.js --colors --progress --display-reasons --display-modules",
-    "example:cli": "node example/cli.js",
-    "example:web": "node example/web.js",
-    "example:stt": "node example/stt.js"
-  },
   "author": {
     "name": "flxxyz",
     "email": "i@mdzz.name"
@@ -29,21 +22,9 @@
     "序列化"
   ],
   "dependencies": {
-    "@babel/runtime": "^7.8.7",
     "commander": "^4.1.0",
     "fast-text-encoding": "^1.0.0",
     "ws": "^7.2.1"
-  },
-  "devDependencies": {
-    "@babel/core": "^7.8.7",
-    "@babel/plugin-transform-regenerator": "^7.8.7",
-    "@babel/plugin-transform-runtime": "^7.8.3",
-    "@babel/preset-env": "^7.8.7",
-    "babel-loader": "^8.0.6",
-    "clean-webpack-plugin": "^3.0.0",
-    "uglifyjs-webpack-plugin": "^2.2.0",
-    "webpack": "^4.42.0",
-    "webpack-cli": "^3.3.11"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org/",

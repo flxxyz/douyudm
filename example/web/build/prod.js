@@ -2,7 +2,7 @@ const UglifyJSPlugin = require('uglifyjs-webpack-plugin')
 
 module.exports = {
     mode: 'production',
-    devtool: 'eval',
+    // devtool: 'eval',
     optimization: {
         minimizer: true,
         minimizer: [

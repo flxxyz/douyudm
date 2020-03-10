@@ -5,7 +5,7 @@ const {
 
 const config = {
     entry: {
-        douyudanmu: path.resolve(__dirname, '..', 'src/index.js'),
+        douyudanmu: path.resolve(__dirname, '..', 'index.js'),
     },
     output: {
         path: path.resolve(__dirname, '..', 'dist'),
@@ -24,7 +24,17 @@ const config = {
                     plugins: [
                         // "@babel/transform-runtime",
                         "@babel/plugin-transform-runtime",
-                    ]
+                    ],
+                    presets: [
+                        [
+                            "@babel/preset-env",
+                            {
+                                targets: {
+                                    esmodules: true
+                                }
+                            }
+                        ]
+                    ],
                 },
             },
         }]
@@ -35,7 +45,6 @@ const config = {
 
 module.exports = function (argv) {
     if (argv === 'dev') {
-        config.output.filename = '[name].js'
         return Object.assign({}, config, require('./dev'))
     } else {
         return Object.assign({}, config, require('./prod'))

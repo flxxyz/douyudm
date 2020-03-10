@@ -1,3 +1,5 @@
+const bufferCoder = require('./bufferCoder')
+
 function open() {
     this.login() //登入
     this.joinGroup() //加入组
@@ -13,7 +15,12 @@ function close() {
 }
 
 async function message(data) {
-    let r = await this.getMessage(data)
+    let m = data
+    if (typeof MessageEvent !== 'undefined') {
+        //无MessageEvent类型判断为node环境，转换数据为arraybuffer类型
+        m = await bufferCoder.blob2ab(data.data)
+    }
+    let r = await this.getMessage(m)
 
     if (Object.keys(this.messageEvent).filter(v => {
             return !this.ignore.includes(v)

@@ -1,5 +1,5 @@
 //引入类库
-const douyu = require('douyudm')
+const douyu = require('../src/index')
 
 //设置房间号，初始化
 const roomId = 102965
