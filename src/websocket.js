@@ -1,10 +1,7 @@
 //判断浏览器环境
 var isBrowser = false
 if (typeof window !== 'undefined') {
-    console.log('browser')
     isBrowser = true
-} else {
-    console.log('no browser')
 }
 
 class websocket {
