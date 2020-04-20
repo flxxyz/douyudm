@@ -1,6 +1,7 @@
 'use strict';
 
-const douyudanmu = require('./client')
-douyudanmu.stt = require('./stt')
+const danmaku = require('./client')
+danmaku.stt = require('./stt')
+danmaku.Websocket = require('./websocket')
 
-module.exports = douyudanmu
+module.exports = danmaku

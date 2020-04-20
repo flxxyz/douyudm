@@ -1,4 +1,3 @@
-const websocket = require('./websocket')
 const config = require('./config')
 const event = require('./clientEvent')
 const stt = require('./stt')
@@ -28,8 +27,8 @@ class Client {
         }
     }
 
-    initSocket() {
-        this.ws = new websocket(config.URL)
+    initSocket(ws) {
+        this.ws = new ws(config.URL)
         this.ws.on('open', this.clientEvent.connect.listener.bind(this))
         this.ws.on('error', this.clientEvent.error.listener.bind(this))
         this.ws.on('close', this.clientEvent.disconnect.listener.bind(this))
@@ -80,8 +79,9 @@ class Client {
         this.ws.close()
     }
 
-    run() {
-        this.initSocket()
+    run(websocket) {
+        let ws = websocket || require('./websocket')
+        this.initSocket(ws)
     }
 
     setIgnore(key, value) {

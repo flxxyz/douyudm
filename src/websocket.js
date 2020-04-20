@@ -10,35 +10,6 @@ class websocket {
         this.socket = new WebSocket(address)
     }
 
-    get CONNECTING() {
-        return WebSocket.CONNECTING;
-    }
-    get CLOSING() {
-        return WebSocket.CLOSING;
-    }
-    get CLOSED() {
-        return WebSocket.CLOSED;
-    }
-    get OPEN() {
-        return WebSocket.OPEN;
-    }
-
-    get readyState() {
-        return this.socket.readyState
-    }
-
-    get binaryType() {
-        return this.socket.binaryType;
-    }
-
-    get bufferedAmount() {
-        return this.socket.bufferedAmount
-    }
-
-    get extensions() {
-        return this.socket.extensions
-    }
-
     send(data) {
         this.socket.send(data)
     }
