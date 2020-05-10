@@ -191,5 +191,56 @@ module.exports = {
     },
     ranklist: function (r) {
         // 广播排行榜消息
-    }
+    },
+    mrkl: function(r) {
+        // 心跳
+    },
+    erquizisn: function(r) {
+        // 鱼丸预言，参数未知
+    },
+    blab: function(r) {
+        // 粉丝等级升级
+        // 字段说明
+        // type  表示为“粉丝等级升级”,固定为 blab
+        // rid   房间 id
+        // uid   用户 id
+        // nn  用户昵称
+        // bl  升级后的等级
+        // bnn 升级的粉丝牌
+        // lbl 未知（猜测未升级前的等级）
+        // ba  未知
+    },
+    rri: function(r) {
+        // 未知的消息事件
+    },
+    synexp: function(r) {
+
+    },
+    noble_num_info: function(r) {
+        // 未知的消息事件
+    },
+    gbroadcast: function(r) {
+        // 未知的消息事件
+    },
+    qausrespond: function(r) {
+        // 未知的消息事件
+    },
+    wiru: function(r) {
+        // 未知的消息事件
+    },
+    wirt: function(r) {
+        // 未知的消息事件
+    },
+    mcspeacsite: function(r) {
+        // 未知的消息事件
+    },
+    rank_change: function(r) {
+        // 未知的消息事件
+    },
+    srres: function(r) {
+        // 未知的消息事件
+    },
+    anbc: function(r) {
+        // 未知的消息事件
+    },
 }

@@ -1,4 +1,8 @@
-const URL = 'wss://danmuproxy.douyu.com:8506/'
+const util = require('./util')
+
+//目前已知的弹幕服务器
+const port = 8500 + util.random(1, 6)
+const URL = `wss://danmuproxy.douyu.com:${port}/`
 
 const HEARBEAT_INTERVAL = 45
 

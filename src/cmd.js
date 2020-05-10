@@ -17,10 +17,13 @@ program
     .option('-g, --ggbb', '忽略房间用户抢红包', false)
     .option('-r, --rankup', '忽略房间内top10变化消息', false)
     .option('-l, --ranklist', '忽略广播排行榜消息', false)
+    .option('--debug', '开启debug模式，输出消息内容保存到文件', false)
     .version(package.version)
     .parse(process.argv)
 
-const c = new client(program.id)
+const c = new client(program.id, {
+    debug: program.debug,
+})
 c.setIgnore({
     uenter: program.uenter,
     upgrade: program.upgrade,
