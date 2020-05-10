@@ -1,13 +1,15 @@
 # douyudanmu
 实时获取斗鱼弹幕
 
+> \>= 1.1.0 支持所有消息输出到文件
+
 ## 安装(命令行)
 ```shell
 npm i -g douyudm
 ```
 
 ## 使用(命令行)
-通过命令行监听，默认显示
+通过命令行监听，默认显示，`--debug`开启输出到文件，默认保存当前运行目录
 ```shell
 douyudm -i 房间号
 ```
@@ -28,7 +30,11 @@ const douyu = require('douyudm')
 
 //设置房间号，初始化
 const roomId = 102965
-const room = new douyu(roomId)
+const opts = {
+    debug: false,
+    logfile: `/自定义路径/${roomId}.log`,  //默认保存到当前运行目录，格式: 房间号.log
+}
+const room = new douyu(roomId, opts)
 
 //系统事件
 room.on('connect', function () {
@@ -80,6 +86,20 @@ room.run()
 |      ggbb      |   房间用户抢红包    |
 |     rankup     | 房间内top10变化消息 |
 |    ranklist    |   广播排行榜消息    |
+|      mrkl      |        心跳      |
+|   erquizisn    |       鱼丸预言    |
+|      blab      |    粉丝等级升级    |
+|      rri       |    未知的消息事件  |
+|     synexp     |    未知的消息事件  |
+| noble_num_info |    未知的消息事件  |
+|   gbroadcast   |    未知的消息事件  |
+|   qausrespond  |    未知的消息事件  |
+|      wiru      |    未知的消息事件  |
+|      wirt      |    未知的消息事件  |
+|   mcspeacsite  |    未知的消息事件  |
+|   rank_change  |    未知的消息事件  |
+|      srres     |    未知的消息事件  |
+|      anbc      |    未知的消息事件  |
 
 ## 斗鱼STT序列化反序列化库
 ```javascript

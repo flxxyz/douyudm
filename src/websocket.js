@@ -1,8 +1,4 @@
-//判断浏览器环境
-var isBrowser = false
-if (typeof window !== 'undefined') {
-    isBrowser = true
-}
+const util = require('./util')
 
 class websocket {
     constructor(address) {
@@ -32,4 +28,4 @@ class websocket {
     }
 }
 
-module.exports = isBrowser ? websocket : require('ws')
+module.exports = util.isBrowser() ? websocket : require('ws')

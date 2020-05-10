@@ -1,6 +1,4 @@
-function isType(p, type) {
-    return Object.prototype.toString.call(p).slice(8, -1).toLocaleLowerCase() === type.toLocaleLowerCase()
-}
+const util = require('./util')
 
 function escape(value) {
     value = value.toString()
@@ -17,15 +15,15 @@ function unescape(value) {
 }
 
 function serialize(data) {
-    if (isType(data, 'object')) {
+    if (util.isObject(data)) {
         let str = ''
         for (let [key, value] of Object.entries(data)) {
             str += `${escape(serialize(key))}@=${escape(serialize(value))}/`
         }
         return str
-    } else if (isType(data, 'array')) {
+    } else if (util.isArray(data)) {
         return data.map(value => `${escape(serialize(value))}/`).join('')
-    } else if (isType(data, 'string') || isType(data, 'number')) {
+    } else if (util.isString(data) || util.isNumber(data)) {
         return data.toString()
     } else {
         return ''
@@ -34,7 +32,7 @@ function serialize(data) {
 
 function deserialize(raw) {
     const result = {}
-    if (isType(result, 'undefined') || raw.length <= 0) {
+    if (util.isUndefined(result) || raw.length <= 0) {
         return result
     }
 
@@ -53,7 +51,6 @@ function deserialize(raw) {
 }
 
 module.exports = {
-    isType,
     serialize,
     deserialize,
 }

@@ -1,4 +1,5 @@
 const bufferCoder = require('./bufferCoder')
+const fs = require('fs')
 
 function open() {
     this.login() //登入
@@ -26,6 +27,17 @@ async function message(data) {
             return !this.ignore.includes(v)
         }).includes(r.type)) {
         this.messageEvent[r.type](r)
+    }
+
+    if (this.options.debug) {
+        fs.appendFile(
+            this.options.logfile,
+            JSON.stringify({t: new Date().getTime(), frame: r}) + '\n',
+            function (err) {
+                if (err) {
+                    console.error('Error:', err)
+                }
+            })
     }
 }
 

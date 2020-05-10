@@ -1,16 +1,18 @@
 const config = require('./config')
 const event = require('./clientEvent')
 const stt = require('./stt')
+const util = require('./util')
 const bufferCoder = require('./bufferCoder')
 const messageEvent = require('./messageEvent')
 
 class Client {
-    constructor(roomId) {
+    constructor(roomId, opts) {
         this.roomId = roomId
         this.ws = null
         this.heartbeatTask = null
         this.messageEvent = messageEvent
         this.ignore = []
+        this.options = this.setOptions(opts || {})
         this.clientEvent = {
             connect: {
                 name: 'open',
@@ -85,7 +87,7 @@ class Client {
     }
 
     setIgnore(key, value) {
-        if (stt.isType(key, 'object')) {
+        if (util.isObject(key)) {
             for (let i in key) {
                 if (key[i]) {
                     this.ignore.push(i)
@@ -98,6 +100,28 @@ class Client {
         }
 
         return this
+    }
+
+    setOptions(opts) {
+        const defOpts = {
+            debug: false,
+            logfile: `${this.roomId}.log`,
+        }
+        const options = {}
+
+        if (!util.isObject(opts)) {
+            return defOpts
+        }
+
+        if (opts.hasOwnProperty('debug') && util.isBoolean(opts.debug)) {
+            options.debug = opts.debug
+        }
+
+        if (opts.hasOwnProperty('logfile') && util.isString(opts.logfile)) {
+            options.logfile = opts.logfile
+        }
+
+        return Object.assign(defOpts, options)
     }
 
     on(method, callback) {
