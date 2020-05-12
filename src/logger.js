@@ -32,10 +32,8 @@ Logger.prototype.init = function (dbname) {
         } else {
             this._fs = require('fs')
         }
-    } else {
         this.inited = true
     }
-
 }
 
 if (!util.isBrowser()) {
@@ -75,55 +73,78 @@ if (!util.isBrowser()) {
     Logger.prototype.export = function () {
         return this._fs.readFileSync(this.dbname, 'utf8')
     }
+
+    Logger.prototype.clear = function () {
+
+    }
 } else {
     Logger.prototype.echo = function (data) {
-        const tx = this.db.transaction(this.dbname, 'readwrite')
-        const store = tx.objectStore(this.dbname)
-        store.add({
-            t: new Date().getTime(),
-            frame: data
-        })
+        if (this.db !== null) {
+            const tx = this.db.transaction(this.dbname, 'readwrite')
+            const store = tx.objectStore(this.dbname)
+            store.add({
+                t: new Date().getTime(),
+                frame: data
+            })
+        }
     }
 
     Logger.prototype.all = function () {
-        const tx = this.db.transaction(this.dbname, 'readonly')
-        const store = tx.objectStore(this.dbname)
-        return new Promise(function (resolve, reject) {
-            const req = store.getAll()
-            req.addEventListener('success', function (e) {
-                resolve(req.result)
+        if (this.db !== null) {
+            const tx = this.db.transaction(this.dbname, 'readonly')
+            const store = tx.objectStore(this.dbname)
+            return new Promise(function (resolve, reject) {
+                const req = store.getAll()
+                req.addEventListener('success', function (e) {
+                    resolve(req.result)
+                })
+                req.addEventListener('error', function (e) {
+                    reject(false)
+                })
             })
-            req.addEventListener('error', function (e) {
-                reject(false)
-            })
-        })
+        }
+
     }
 
     Logger.prototype.len = function () {
-        const tx = this.db.transaction(this.dbname, 'readonly')
-        const store = tx.objectStore(this.dbname)
-        return new Promise(function (resolve, reject) {
-            const req = store.count()
-            req.addEventListener('success', function (e) {
-                resolve(req.result)
+        if (this.db !== null) {
+            const tx = this.db.transaction(this.dbname, 'readonly')
+            const store = tx.objectStore(this.dbname)
+            return new Promise(function (resolve, reject) {
+                const req = store.count()
+                req.addEventListener('success', function (e) {
+                    resolve(req.result)
+                })
+                req.addEventListener('error', function (e) {
+                    reject(false)
+                })
             })
-            req.addEventListener('error', function (e) {
-                reject(false)
-            })
-        })
+        }
+
     }
 
     Logger.prototype.export = async function () {
-        const r = await this.all()
-        let text = ''
-        r.forEach((value, index) => {
-            text += `${JSON.stringify({
+        if (this.db !== null) {
+            const r = await this.all()
+            let text = ''
+            r.forEach((value, index) => {
+                text += `${JSON.stringify({
                 t: value.t,
                 frame: value.frame,
             })}\n`
-        })
-        download(this.dbname, text)
-        return text
+            })
+            util.download(this.dbname, text)
+            return text
+        }
+
+    }
+
+    Logger.prototype.clear = function () {
+        if (this.db !== null) {
+            const tx = this.db.transaction(this.dbname, 'readwrite')
+            const store = tx.objectStore(this.dbname)
+            store.clear()
+        }
     }
 }
 
