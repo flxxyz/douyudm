@@ -5,10 +5,10 @@ const {
 
 const config = {
     entry: {
-        douyudanmu: path.resolve(__dirname, '..', 'index.js'),
+        douyudanmaku: path.resolve(__dirname, '..', 'index.js'),
     },
     output: {
-        path: path.resolve(__dirname, '..', 'dist'),
+        path: path.resolve(__dirname, '..', '..', 'dist'),
         filename: '[name].min.js'
     },
     plugins: [
@@ -38,6 +38,9 @@ const config = {
                 },
             },
         }]
+    },
+    node: {
+        fs: 'empty',
     },
 }
 

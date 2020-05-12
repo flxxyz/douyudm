@@ -1,11 +1,11 @@
 {
   "scripts": {
-    "build": "npx webpack --env prod --mode production --config ./build/index.js --colors --progress",
-    "dev": "npx webpack --env dev --mode development --config ./build/index.js --colors --progress --display-reasons --display-modules"
+    "build": "npx webpack --env prod --mode production --config ./config/index.js --colors --progress",
+    "dev": "npx webpack --env dev --mode development --config ./config/index.js --colors --progress --display-reasons --display-modules"
   },
   "dependencies": {
     "@babel/runtime": "^7.8.7",
-    "douyudm": "^1.0.4-beta.3"
+    "douyudm": "^1.1.2-beta.0"
   },
   "devDependencies": {
     "@babel/core": "^7.8.7",
