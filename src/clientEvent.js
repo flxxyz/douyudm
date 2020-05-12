@@ -1,10 +1,6 @@
 const bufferCoder = require('./bufferCoder')
-<<<<<<< HEAD
-const fs = require('fs')
-=======
 const util = require('./util')
 const logger = require('./logger')
->>>>>>> dev
 
 function open() {
     this.login() //登入
