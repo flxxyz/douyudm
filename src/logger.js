@@ -1,36 +1,46 @@
 const util = require('./util')
 
-const Logger = function (dbname) {
-    this.dbname = dbname
+const Logger = function () {
+    this.dbname = 'unknown'
     this.db = null
+    this.inited = false
+}
 
-    if (util.isBrowser()) {
-        window.indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB
-        const sql = indexedDB.open('danmaku', 1)
-        sql.addEventListener('success', e => {
-            console.log('连接数据库成功')
-            this.db = event.target.result
-        })
+Logger.prototype.init = function (dbname) {
+    if (!this.inited) {
+        this.dbname = dbname
 
-        sql.addEventListener('upgradeneeded', e => {
-            this.db = event.target.result
-            this.db.createObjectStore(this.dbname, {
-                keyPath: 'id',
-                autoIncrement: true
+        if (util.isBrowser()) {
+            window.indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB
+            this._sql = indexedDB.open('danmaku', 1)
+            this._sql.addEventListener('success', e => {
+                console.log('连接数据库成功')
+                this.db = event.target.result
             })
-        })
 
-        sql.addEventListener('error', e => {
-            console.log('连接数据库出错 Error:', e)
-        })
+            this._sql.addEventListener('upgradeneeded', e => {
+                this.db = event.target.result
+                this.db.createObjectStore(this.dbname, {
+                    keyPath: 'id',
+                    autoIncrement: true
+                })
+            })
+
+            this._sql.addEventListener('error', e => {
+                console.log('连接数据库出错 Error:', e)
+            })
+        } else {
+            this._fs = require('fs')
+        }
+    } else {
+        this.inited = true
     }
+
 }
 
 if (!util.isBrowser()) {
-    const fs = require('fs')
-
     Logger.prototype.echo = function (data) {
-        fs.appendFile(
+        this._fs.appendFile(
             this.dbname,
             JSON.stringify({
                 t: new Date().getTime(),
@@ -45,7 +55,7 @@ if (!util.isBrowser()) {
 
     Logger.prototype.all = function () {
         return new Promise((resolve, reject) => {
-            fs.readFile(this.dbname, 'utf8', function (err, str) {
+            this._fs.readFile(this.dbname, 'utf8', function (err, str) {
                 if (err) {
                     reject(err)
                 } else {
@@ -63,7 +73,7 @@ if (!util.isBrowser()) {
     }
 
     Logger.prototype.export = function () {
-        return fs.readFileSync(this.dbname, 'utf8')
+        return this._fs.readFileSync(this.dbname, 'utf8')
     }
 } else {
     Logger.prototype.echo = function (data) {
@@ -117,4 +127,4 @@ if (!util.isBrowser()) {
     }
 }
 
-module.exports = Logger
+module.exports = new Logger()

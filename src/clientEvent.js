@@ -32,8 +32,8 @@ async function message(data) {
 
     if (this.options.debug) {
         const dbname = util.isBrowser() ? this.roomId : this.options.logfile
-        const l = new logger(dbname)
-        l.echo(r)
+        logger.init(dbname)
+        logger.echo(r)
     }
 }
 
