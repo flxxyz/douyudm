@@ -1,19 +1,9 @@
 const path = require('path')
-const {
-    CleanWebpackPlugin
-} = require('clean-webpack-plugin')
 
 const config = {
     entry: {
         douyudanmaku: path.resolve(__dirname, '..', 'index.js'),
     },
-    output: {
-        path: path.resolve(__dirname, '..', '..', 'dist'),
-        filename: '[name].min.js'
-    },
-    plugins: [
-        new CleanWebpackPlugin(),
-    ],
     module: {
         rules: [{
             test: /\.m?js$/,
@@ -22,8 +12,20 @@ const config = {
                 loader: 'babel-loader',
                 options: {
                     plugins: [
-                        // "@babel/transform-runtime",
-                        "@babel/plugin-transform-runtime",
+                        "@babel/plugin-transform-async-to-generator",
+                        "@babel/plugin-proposal-object-rest-spread",
+                        "@babel/plugin-transform-exponentiation-operator",
+                        "@babel/plugin-transform-parameters",
+                        "@babel/plugin-transform-for-of",
+                        "@babel/plugin-transform-property-literals",
+                        "babel-plugin-transform-remove-console",
+                        "minify-simplify",
+                        "minify-constant-folding",
+                        "minify-dead-code-elimination",
+                        "minify-guarded-expressions",
+                        "minify-mangle-names",
+                        "minify-numeric-literals",
+                        "minify-type-constructors",
                     ],
                     presets: [
                         [

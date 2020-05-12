@@ -32,10 +32,8 @@ Logger.prototype.init = function (dbname) {
         } else {
             this._fs = require('fs')
         }
-    } else {
         this.inited = true
     }
-
 }
 
 if (!util.isBrowser()) {
@@ -77,12 +75,14 @@ if (!util.isBrowser()) {
     }
 } else {
     Logger.prototype.echo = function (data) {
-        const tx = this.db.transaction(this.dbname, 'readwrite')
-        const store = tx.objectStore(this.dbname)
-        store.add({
-            t: new Date().getTime(),
-            frame: data
-        })
+        if (this.db !== null) {
+            const tx = this.db.transaction(this.dbname, 'readwrite')
+            const store = tx.objectStore(this.dbname)
+            store.add({
+                t: new Date().getTime(),
+                frame: data
+            })
+        }
     }
 
     Logger.prototype.all = function () {
@@ -122,7 +122,7 @@ if (!util.isBrowser()) {
                 frame: value.frame,
             })}\n`
         })
-        download(this.dbname, text)
+        util.download(this.dbname, text)
         return text
     }
 }

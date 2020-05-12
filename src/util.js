@@ -25,7 +25,7 @@ Util.prototype.isBrowser = () => (typeof window !== 'undefined') ? true : false
 Util.prototype.random = (min, max) => Math.floor(Math.random() * (max - min + 1) + min)
 
 //web端下载文件
-Util.prototype.download = (filename, text) => {
+Util.prototype.download = function(filename, text) {
     if (this.isBrowser()) {
         let element = document.createElement('a');
         element.style.display = 'none'
