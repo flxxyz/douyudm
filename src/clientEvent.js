@@ -1,5 +1,8 @@
 const bufferCoder = require('./bufferCoder')
-const fs = require('fs')
+const util = require('./util')
+if (!util.isBrowser()) {
+    const fs = require('fs')
+}
 
 function open() {
     this.login() //登入
@@ -30,7 +33,8 @@ async function message(data) {
     }
 
     if (this.options.debug) {
-        fs.appendFile(
+        if (!util.isBrowser()) {
+            fs.appendFile(
             this.options.logfile,
             JSON.stringify({t: new Date().getTime(), frame: r}) + '\n',
             function (err) {
@@ -38,6 +42,7 @@ async function message(data) {
                     console.error('Error:', err)
                 }
             })
+        }
     }
 }
 
