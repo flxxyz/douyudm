@@ -1,8 +1,6 @@
 const bufferCoder = require('./bufferCoder')
 const util = require('./util')
-if (!util.isBrowser()) {
-    const fs = require('fs')
-}
+const logger = require('./logger')
 
 function open() {
     this.login() //登入
@@ -33,16 +31,9 @@ async function message(data) {
     }
 
     if (this.options.debug) {
-        if (!util.isBrowser()) {
-            fs.appendFile(
-            this.options.logfile,
-            JSON.stringify({t: new Date().getTime(), frame: r}) + '\n',
-            function (err) {
-                if (err) {
-                    console.error('Error:', err)
-                }
-            })
-        }
+        const dbname = util.isBrowser() ? this.roomId : this.options.logfile
+        const l = new logger(dbname)
+        l.echo(r)
     }
 }
 
