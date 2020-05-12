@@ -1,9 +1,9 @@
 //引入类库
-const douyu = require('../src/index')
+const douyudanmaku = require('../src/index')
 
 //设置房间号，初始化
 const roomId = 102965
-const room = new douyu(roomId)
+const room = new douyudanmaku(roomId)
 
 //系统事件
 room.on('connect', function () {
