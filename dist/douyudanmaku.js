@@ -459,37 +459,49 @@ Logger.prototype.init = function (a) {
     });
   }
 }, Logger.prototype.all = function () {
-  var a = this.db.transaction(this.dbname, 'readonly');
-  var b = a.objectStore(this.dbname);
-  return new Promise(function (a, c) {
-    var d = b.getAll();
-    d.addEventListener('success', function () {
-      a(d.result);
-    }), d.addEventListener('error', function () {
-      c(false);
+  if (this.db !== null) {
+    var a = this.db.transaction(this.dbname, 'readonly');
+    var b = a.objectStore(this.dbname);
+    return new Promise(function (a, c) {
+      var d = b.getAll();
+      d.addEventListener('success', function () {
+        a(d.result);
+      }), d.addEventListener('error', function () {
+        c(false);
+      });
     });
-  });
+  }
 }, Logger.prototype.len = function () {
-  var a = this.db.transaction(this.dbname, 'readonly');
-  var b = a.objectStore(this.dbname);
-  return new Promise(function (a, c) {
-    var d = b.count();
-    d.addEventListener('success', function () {
-      a(d.result);
-    }), d.addEventListener('error', function () {
-      c(false);
+  if (this.db !== null) {
+    var a = this.db.transaction(this.dbname, 'readonly');
+    var b = a.objectStore(this.dbname);
+    return new Promise(function (a, c) {
+      var d = b.count();
+      d.addEventListener('success', function () {
+        a(d.result);
+      }), d.addEventListener('error', function () {
+        c(false);
+      });
     });
-  });
+  }
 }, Logger.prototype.export = /*#__PURE__*/_asyncToGenerator(function* () {
-  var a = yield this.all();
-  var b = '';
-  return a.forEach(a => {
-    b += "".concat(JSON.stringify({
-      t: a.t,
-      frame: a.frame
-    }), "\n");
-  }), util.download(this.dbname, b), b;
-})) : (Logger.prototype.echo = function (a) {
+  if (this.db !== null) {
+    var a = yield this.all();
+    var b = '';
+    return a.forEach(a => {
+      b += "".concat(JSON.stringify({
+        t: a.t,
+        frame: a.frame
+      }), "\n");
+    }), util.download(this.dbname, b), b;
+  }
+}), Logger.prototype.clear = function () {
+  if (this.db !== null) {
+    var a = this.db.transaction(this.dbname, 'readwrite');
+    var b = a.objectStore(this.dbname);
+    b.clear();
+  }
+}) : (Logger.prototype.echo = function (a) {
   this._fs.appendFile(this.dbname, JSON.stringify({
     t: new Date().getTime(),
     frame: a
@@ -514,7 +526,7 @@ Logger.prototype.init = function (a) {
   }());
 }, Logger.prototype.export = function () {
   return this._fs.readFileSync(this.dbname, 'utf8');
-}), module.exports = new Logger();
+}, Logger.prototype.clear = function () {}), module.exports = new Logger();
 
 /***/ }),
 
