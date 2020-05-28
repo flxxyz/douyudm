@@ -6,6 +6,8 @@
 ## 安装(命令行)
 ```shell
 npm i -g douyudm
+or
+yarn global add douyudm
 ```
 
 ## 使用(命令行)
@@ -14,6 +16,46 @@ npm i -g douyudm
 douyudm -i 房间号
 ```
 更多命令查看 `douyudm --help`
+
+## 安装(WEB)
+建议在html顶部位置引入js文件
+```
+<script src="https://flxxyz.github.io/douyudm/dist/douyudanmaku.min.js"></script>
+```
+
+## 使用(WEB)
+挂载在window下，可通过 `douyudanmaku`, `danmaku`调用，开启 **debug** 可直接调用 `danmaku.logger.export()` 导出弹幕
+```
+<script>
+window.onload = function() {
+    var room = new danmaku(roomId, {
+        debug: false, //存储到indexedDB
+    })
+    //系统事件
+    room.on('connect', function() {
+        console.log('[connect] roomId=%s', this.roomId)
+    })
+    room.on('disconnect', function() {
+        console.log('[disconnect] roomId=%s', this.roomId)
+    })
+    room.on('error', function(err) {
+        console.log('[error] roomId=%s', this.roomId)
+    })
+    //消息事件
+    room.on('chatmsg', function(res) {
+        console.log('[chatmsg]', `<lv ${res.level}> [${res.nn}] ${res.txt}`)
+    })
+    room.on('loginres', function(res) {
+        console.log('[loginres]', '登录成功')
+    })
+    room.on('uenter', function(res) {
+        console.log('[uenter]', `${res.nn}进入房间`)
+    })
+    //开始监听
+    room.run()
+}
+</script>
+```
 
 ## 安装(API)
 ```shell
