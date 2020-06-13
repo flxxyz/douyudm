@@ -68,7 +68,7 @@ BufferCoder.prototype.encode = function (str, LE) {
  */
 BufferCoder.prototype.blob2ab = function (blob) {
     return new Promise((resolve, reject) => {
-        let reader = new FileReader()
+        const reader = new FileReader()
         reader.onload = function (e) {
             resolve(e.target.result)
         }

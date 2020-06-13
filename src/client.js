@@ -120,7 +120,6 @@ class Client {
     messageHandle(m) {
         bufferCoder.decode(m, (e) => {
             const r = stt.deserialize(e)
-            console.log('[message]', e)
 
             if (Object.keys(this.messageEvent).filter(v => {
                     return !this.ignore.includes(v)
