@@ -128,20 +128,20 @@ room.run()
 |      ggbb      |   房间用户抢红包    |
 |     rankup     | 房间内top10变化消息 |
 |    ranklist    |   广播排行榜消息    |
-|      mrkl      |        心跳      |
-|   erquizisn    |       鱼丸预言    |
-|      blab      |    粉丝等级升级    |
-|      rri       |    未知的消息事件  |
-|     synexp     |    未知的消息事件  |
-| noble_num_info |    未知的消息事件  |
-|   gbroadcast   |    未知的消息事件  |
-|   qausrespond  |    未知的消息事件  |
-|      wiru      |    未知的消息事件  |
-|      wirt      |    未知的消息事件  |
-|   mcspeacsite  |    未知的消息事件  |
-|   rank_change  |    未知的消息事件  |
-|      srres     |    未知的消息事件  |
-|      anbc      |    未知的消息事件  |
+|      mrkl      |        心跳         |
+|    rquizisn    |      鱼丸预言       |
+|      blab      |    粉丝等级升级     |
+|      rri       |   未知的消息事件    |
+|     synexp     |   未知的消息事件    |
+| noble_num_info |   未知的消息事件    |
+|   gbroadcast   |   未知的消息事件    |
+|  qausrespond   |   未知的消息事件    |
+|      wiru      |   未知的消息事件    |
+|      wirt      |   未知的消息事件    |
+|  mcspeacsite   |   未知的消息事件    |
+|  rank_change   |   未知的消息事件    |
+|     srres      |   未知的消息事件    |
+|      anbc      |   未知的消息事件    |
 
 ## 斗鱼STT序列化反序列化库
 ```javascript
