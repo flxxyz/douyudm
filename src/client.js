@@ -4,6 +4,7 @@ const stt = require('./stt')
 const util = require('./util')
 const bufferCoder = require('./bufferCoder')
 const messageEvent = require('./messageEvent')
+const logger = require('./logger')
 
 class Client {
     constructor(roomId, opts) {
@@ -39,14 +40,6 @@ class Client {
 
     send(message) {
         this.ws.send(bufferCoder.encode(stt.serialize(message)))
-    }
-
-    getMessage(data) {
-        return new Promise((resolve, reject) => {
-            bufferCoder.decode(data, (e) => {
-                resolve(stt.deserialize(e))
-            })
-        })
     }
 
     login() {
@@ -124,8 +117,27 @@ class Client {
         return Object.assign(defOpts, options)
     }
 
+    messageHandle(m) {
+        bufferCoder.decode(m, (e) => {
+            const r = stt.deserialize(e)
+            console.log('[message]', e)
+
+            if (Object.keys(this.messageEvent).filter(v => {
+                    return !this.ignore.includes(v)
+                }).includes(r.type)) {
+                this.messageEvent[r.type](r)
+            }
+
+            if (this.options.debug) {
+                const dbname = util.isBrowser() ? this.roomId : this.options.logfile
+                logger.init(dbname)
+                logger.echo(r)
+            }
+        })
+    }
+
     on(method, callback) {
-        let clientEventName = Object.keys(this.clientEvent).find(clientEvent => clientEvent === method.toLocaleLowerCase())
+        const clientEventName = Object.keys(this.clientEvent).find(clientEvent => clientEvent === method.toLocaleLowerCase())
         if (clientEventName) {
             //在创建连接是触发connect事件时，发送登入，加入组，监听心跳消息
             if (clientEventName === 'connect') {
@@ -146,7 +158,7 @@ class Client {
             this.clientEvent[method].listener = callback.bind(this)
         }
 
-        let messageEventName = Object.keys(this.messageEvent).find(messageEvent => messageEvent === method.toLocaleLowerCase())
+        const messageEventName = Object.keys(this.messageEvent).find(messageEvent => messageEvent === method.toLocaleLowerCase())
         if (messageEventName) {
             this.messageEvent[method] = callback.bind(this)
         }
