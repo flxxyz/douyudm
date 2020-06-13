@@ -1,7 +1,3 @@
-const bufferCoder = require('./bufferCoder')
-const util = require('./util')
-const logger = require('./logger')
-
 function open() {
     this.login() //登入
     this.joinGroup() //加入组
@@ -16,24 +12,14 @@ function close() {
     this.logout()
 }
 
-async function message(data) {
-    let m = data
+function message(data) {
     if (typeof MessageEvent !== 'undefined') {
         //无MessageEvent类型判断为node环境，转换数据为arraybuffer类型
-        m = await bufferCoder.blob2ab(data.data)
-    }
-    let r = await this.getMessage(m)
-
-    if (Object.keys(this.messageEvent).filter(v => {
-            return !this.ignore.includes(v)
-        }).includes(r.type)) {
-        this.messageEvent[r.type](r)
-    }
-
-    if (this.options.debug) {
-        const dbname = util.isBrowser() ? this.roomId : this.options.logfile
-        logger.init(dbname)
-        logger.echo(r)
+        let reader = new FileReader()
+        reader.onload = e => this.messageHandle(e.target.result)
+        reader.readAsArrayBuffer(data.data)
+    } else {
+        this.messageHandle(data)
     }
 }
 
