@@ -159,7 +159,8 @@ const stt = require('douyudm').stt
 //序列化测试数据
 const obj = {
     type: 'chatmsg',
-    ic: ['avatar', 'default', '08'],
+    nn: '河马（￣。。￣）',
+    ic: 'avatar_v3/201912/b99d77251eb643b5a88bb81863afea4e',
     cst: '1592152272402',
     brid: '0',
     lk: '',
@@ -173,18 +174,19 @@ const obj = {
 }
 
 //反序列化测试数据
-const str = 'type@=chatmsg/ic@=avatar@Sdefault@S08/cst@=1592152272402/brid@=0/lk@=/list@=lev@AA=1@ASnum@AA=2@AS@Slev@AA=7@ASnum@AA=3@AS@S/'
+const str = 'type@=chatmsg/nn@=河马（￣。。￣）/ic@=avatar_v3@S201912@Sb99d77251eb643b5a88bb81863afea4e/cst@=1592152272402/brid@=0/lk@=/list@=lev@AA=1@ASnum@AA=2@AS@Slev@AA=7@ASnum@AA=3@AS@S/'
 
 // 1.序列化
 console.log(stt.serialize(obj))
-// 输出: type@=chatmsg/ic@=avatar@Sdefault@S08/cst@=1592152272402/brid@=0/lk@=/list@=lev@AA=1@ASnum@AA=2@AS@Slev@AA=7@ASnum@AA=3@AS/
+// 输出: type@=chatmsg/nn@=河马（￣。。￣）/ic@=avatar_v3@S201912@Sb99d77251eb643b5a88bb81863afea4e/cst@=1592152272402/brid@=0/lk@=/list@=lev@AA=1@ASnum@AA=2@AS@Slev@AA=7@ASnum@AA=3@AS@S/
 
 // 2.反序列化
 console.log(stt.deserialize(str))
 // 输出: 
 // {
 //   type: 'chatmsg',
-//   ic: [ 'avatar', 'default', '08' ],
+//   nn: '河马（￣。。￣）',
+//   ic: 'avatar_v3/201912/b99d77251eb643b5a88bb81863afea4e',
 //   cst: '1592152272402',
 //   brid: '0',
 //   lk: '',

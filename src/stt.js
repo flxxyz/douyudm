@@ -13,7 +13,7 @@ class STT {
         if (util.isObject(raw)) {
             return Object.keys(raw).map(k => `${k}@=${this.escape(this.serialize(raw[k]))}/`).join('')
         } else if (Array.isArray(raw)) {
-            return raw.map(v => this.escape(this.serialize(v))).join('/')
+            return raw.map(v => `${this.escape(this.serialize(v))}/`).join('')
         } else if (util.isString(raw) || util.isNumber(raw)) {
             return raw.toString()
         }
@@ -32,8 +32,6 @@ class STT {
             }, {})
         } else if (raw.includes('@A=')) {
             return this.deserialize(this.unescape(raw))
-        } else if (raw.includes('/')) {
-            return raw.split('/').map(item => this.deserialize(item))
         } else {
             return raw.toString()
         }
