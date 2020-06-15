@@ -142,6 +142,7 @@ room.run()
 |  rank_change   |   未知的消息事件    |
 |     srres      |   未知的消息事件    |
 |      anbc      |   未知的消息事件    |
+|     frank      |   未知的消息事件    |
 
 ## 斗鱼STT序列化反序列化库
 

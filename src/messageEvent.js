@@ -243,4 +243,7 @@ module.exports = {
     anbc: function(r) {
         // 未知的消息事件
     },
+    frank: function(r) {
+        // 未知的消息事件
+    },
 }
