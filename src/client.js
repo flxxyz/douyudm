@@ -121,16 +121,16 @@ class Client {
         bufferCoder.decode(m, (e) => {
             const r = stt.deserialize(e)
 
-            if (Object.keys(this.messageEvent).filter(v => {
-                    return !this.ignore.includes(v)
-                }).includes(r.type)) {
-                this.messageEvent[r.type](r)
-            }
-
             if (this.options.debug) {
                 const dbname = util.isBrowser() ? this.roomId : this.options.logfile
                 logger.init(dbname)
                 logger.echo(r)
+            }
+
+            if (Object.keys(this.messageEvent).filter(v => {
+                    return !this.ignore.includes(v)
+                }).includes(r.type)) {
+                this.messageEvent[r.type](r)
             }
         })
     }

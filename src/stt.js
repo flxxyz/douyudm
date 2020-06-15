@@ -1,56 +1,41 @@
 const util = require('./util')
 
-function escape(value) {
-    value = value.toString()
-    value = value.replace(/@/g, '@A')
-    value = value.replace(/\//g, '@S')
-    return value
-}
+class STT {
+    escape(v) {
+        return util.isUndefined(v) ? '' : v.toString().replace(/\//g, '@S').replace(/@/g, '@A')
+    }
 
-function unescape(value) {
-    value = value.toString()
-    value = value.replace(/@A/g, '@')
-    value = value.replace(/@S/g, '/')
-    return value
-}
+    unescape(v) {
+        return util.isUndefined(v) ? '' : v.toString().replace(/@S/g, '/').replace(/@A/g, '@')
+    }
 
-function serialize(data) {
-    if (util.isObject(data)) {
-        let str = ''
-        for (let [key, value] of Object.entries(data)) {
-            str += `${escape(serialize(key))}@=${escape(serialize(value))}/`
+    serialize(raw) {
+        if (util.isObject(raw)) {
+            return Object.keys(raw).map(k => `${k}@=${this.escape(this.serialize(raw[k]))}/`).join('')
+        } else if (Array.isArray(raw)) {
+            return raw.map(v => `${this.escape(this.serialize(v))}/`).join('')
+        } else if (util.isString(raw) || util.isNumber(raw)) {
+            return raw.toString()
         }
-        return str
-    } else if (util.isArray(data)) {
-        return data.map(value => `${escape(serialize(value))}/`).join('')
-    } else if (util.isString(data) || util.isNumber(data)) {
-        return data.toString()
-    } else {
-        return ''
-    }
-}
-
-function deserialize(raw) {
-    const result = {}
-    if (util.isUndefined(result) || raw.length <= 0) {
-        return result
     }
 
-    let arr = raw.split('/')
-    for (let i = arr.length - 2; i >= 0; i--) {
-        let item = arr[i].split('@=')
-        let k = item[0]
-        let v = item[1]
-        if (/^\w+@A=(.*?)@S$/.test(v)) {
-            v = deserialize(unescape(v))
+    deserialize(raw) {
+        if (raw.includes('//')) {
+            return raw.split('//').filter(e => e !== '').map(item => this.deserialize(item))
         }
-        result[k] = v
+
+        if (raw.includes('@=')) {
+            return raw.split('/').filter(e => e !== '').reduce((o, s) => {
+                const [k, v] = s.split('@=')
+                o[k] = this.deserialize(this.unescape(v))
+                return o
+            }, {})
+        } else if (raw.includes('@A=')) {
+            return this.deserialize(this.unescape(raw))
+        } else {
+            return raw.toString()
+        }
     }
-
-    return result
 }
 
-module.exports = {
-    serialize,
-    deserialize,
-}
+module.exports = new STT()

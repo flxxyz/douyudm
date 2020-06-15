@@ -205,6 +205,8 @@ var bufferCoder = __webpack_require__(/*! ./bufferCoder */ "../src/bufferCoder.j
 
 var messageEvent = __webpack_require__(/*! ./messageEvent */ "../src/messageEvent.js");
 
+var logger = __webpack_require__(/*! ./logger */ "../src/logger.js");
+
 class Client {
   constructor(a, b) {
     this.roomId = a, this.ws = null, this.heartbeatTask = null, this.messageEvent = messageEvent, this.ignore = [], this.options = this.setOptions(b || {}), this.clientEvent = {
@@ -229,14 +231,6 @@ class Client {
 
   send(a) {
     this.ws.send(bufferCoder.encode(stt.serialize(a)));
-  }
-
-  getMessage(a) {
-    return new Promise(b => {
-      bufferCoder.decode(a, a => {
-        b(stt.deserialize(a));
-      });
-    });
   }
 
   login() {
@@ -288,6 +282,19 @@ class Client {
     return util.isObject(a) ? (a.hasOwnProperty('debug') && util.isBoolean(a.debug) && (c.debug = a.debug), a.hasOwnProperty('logfile') && util.isString(a.logfile) && (c.logfile = a.logfile), Object.assign(b, c)) : b;
   }
 
+  messageHandle(a) {
+    bufferCoder.decode(a, a => {
+      var b = stt.deserialize(a);
+
+      if (this.options.debug) {
+        var c = util.isBrowser() ? this.roomId : this.options.logfile;
+        logger.init(c), logger.echo(b);
+      }
+
+      Object.keys(this.messageEvent).filter(a => !this.ignore.includes(a)).includes(b.type) && this.messageEvent[b.type](b);
+    });
+  }
+
   on(a, b) {
     var c = Object.keys(this.clientEvent).find(b => b === a.toLocaleLowerCase());
 
@@ -325,17 +332,7 @@ module.exports = Client;
   !*** ../src/clientEvent.js ***!
   \*****************************/
 /*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-function asyncGeneratorStep(a, b, c, d, e, f, g) { try { var h = a[f](g); var i = h.value; } catch (a) { return void c(a); } h.done ? b(i) : Promise.resolve(i).then(d, e); }
-
-function _asyncToGenerator(a) { return function () { var b = this, c = arguments; return new Promise(function (d, e) { function f(a) { asyncGeneratorStep(h, d, e, f, g, "next", a); } function g(a) { asyncGeneratorStep(h, d, e, f, g, "throw", a); } var h = a.apply(b, c); f(undefined); }); }; }
-
-var bufferCoder = __webpack_require__(/*! ./bufferCoder */ "../src/bufferCoder.js");
-
-var util = __webpack_require__(/*! ./util */ "../src/util.js");
-
-var logger = __webpack_require__(/*! ./logger */ "../src/logger.js");
+/***/ (function(module, exports) {
 
 function open() {
   //登入
@@ -349,21 +346,12 @@ function close() {
   this.logout();
 }
 
-function message() {
-  return _message.apply(this, arguments);
-}
-
-function _message() {
-  return _message = _asyncToGenerator(function* (a) {
-    var b = a;
-    typeof MessageEvent !== 'undefined' && (b = yield bufferCoder.blob2ab(a.data));
-    var c = yield this.getMessage(b);
-
-    if (Object.keys(this.messageEvent).filter(a => !this.ignore.includes(a)).includes(c.type) && this.messageEvent[c.type](c), this.options.debug) {
-      var d = util.isBrowser() ? this.roomId : this.options.logfile;
-      logger.init(d), logger.echo(c);
-    }
-  }), _message.apply(this, arguments);
+function message(a) {
+  if (typeof MessageEvent !== 'undefined') {
+    //无MessageEvent类型判断为node环境，转换数据为arraybuffer类型
+    var b = new FileReader();
+    b.onload = a => this.messageHandle(a.target.result), b.readAsArrayBuffer(a.data);
+  } else this.messageHandle(a);
 }
 
 module.exports = {
@@ -675,6 +663,8 @@ module.exports = {
   srres: function srres() {// 未知的消息事件
   },
   anbc: function anbc() {// 未知的消息事件
+  },
+  frank: function frank() {// 未知的消息事件
   }
 };
 
@@ -689,48 +679,30 @@ module.exports = {
 
 var util = __webpack_require__(/*! ./util */ "../src/util.js");
 
-function escape(a) {
-  return a = a.toString(), a = a.replace(/@/g, '@A'), a = a.replace(/\//g, '@S'), a;
-}
-
-function unescape(a) {
-  return a = a.toString(), a = a.replace(/@A/g, '@'), a = a.replace(/@S/g, '/'), a;
-}
-
-function serialize(a) {
-  if (util.isObject(a)) {
-    var d = '';
-
-    for (var b = 0, c = Object.entries(a); b < c.length; b++) {
-      var [e, f] = c[b];
-      d += "".concat(escape(serialize(e)), "@=").concat(escape(serialize(f)), "/");
-    }
-
-    return d;
+class STT {
+  escape(a) {
+    return util.isUndefined(a) ? '' : a.toString().replace(/\//g, '@S').replace(/@/g, '@A');
   }
 
-  return util.isArray(a) ? a.map(a => "".concat(escape(serialize(a)), "/")).join('') : util.isString(a) || util.isNumber(a) ? a.toString() : '';
-}
-
-function deserialize(a) {
-  var b = {};
-  if (util.isUndefined(b) || a.length <= 0) return b;
-  var c = a.split('/');
-
-  for (var d = c.length - 2; d >= 0; d--) {
-    var e = c[d].split('@=');
-    var f = e[0];
-    var g = e[1];
-    /^\w+@A=(.*?)@S$/.test(g) && (g = deserialize(unescape(g))), b[f] = g;
+  unescape(a) {
+    return util.isUndefined(a) ? '' : a.toString().replace(/@S/g, '/').replace(/@A/g, '@');
   }
 
-  return b;
+  serialize(a) {
+    if (util.isObject(a)) return Object.keys(a).map(b => "".concat(b, "@=").concat(this.escape(this.serialize(a[b])), "/")).join('');
+    return Array.isArray(a) ? a.map(a => "".concat(this.escape(this.serialize(a)), "/")).join('') : util.isString(a) || util.isNumber(a) ? a.toString() : void 0;
+  }
+
+  deserialize(a) {
+    return a.includes('//') ? a.split('//').filter(a => a !== '').map(a => this.deserialize(a)) : a.includes('@=') ? a.split('/').filter(a => a !== '').reduce((a, b) => {
+      var [c, d] = b.split('@=');
+      return a[c] = this.deserialize(this.unescape(d)), a;
+    }, {}) : a.includes('@A=') ? this.deserialize(this.unescape(a)) : a.toString();
+  }
+
 }
 
-module.exports = {
-  serialize,
-  deserialize
-};
+module.exports = new STT();
 
 /***/ }),
 

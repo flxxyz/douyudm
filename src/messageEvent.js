@@ -195,7 +195,7 @@ module.exports = {
     mrkl: function(r) {
         // 心跳
     },
-    rquizisn: function(r) {
+    erquizisn: function(r) {
         // 鱼丸预言，参数未知
     },
     blab: function(r) {
@@ -241,6 +241,9 @@ module.exports = {
         // 未知的消息事件
     },
     anbc: function(r) {
+        // 未知的消息事件
+    },
+    frank: function(r) {
         // 未知的消息事件
     },
 }
