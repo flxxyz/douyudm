@@ -36,5 +36,11 @@
   },
   "bugs": {
     "url": "https://github.com/flxxyz/douyudm/issues"
+  },
+  "devDependencies": {
+    "mocha": "^8.0.1"
+  },
+  "scripts": {
+    "test": "mocha test/"
   }
 }
