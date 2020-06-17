@@ -117,10 +117,10 @@ class Client {
         return Object.assign(defOpts, options)
     }
 
-    messageHandle(m) {
-        packet.Decode(m, data => {
-            const r = stt.deserialize(data)
-
+    messageHandle(data) {
+        packet.Decode(data, m => {
+            const r = stt.deserialize(m)
+    
             if (this.options.debug) {
                 const dbname = util.isBrowser() ? this.roomId : this.options.logfile
                 logger.init(dbname)
