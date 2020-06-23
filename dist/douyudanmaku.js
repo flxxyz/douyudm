@@ -196,7 +196,7 @@ class Client {
   logout() {
     this.send({
       type: 'logout'
-    }), clearInterval(this.heartbeatTask), this.ws.close();
+    }), clearInterval(this.heartbeatTask);
   }
 
   run(a) {
@@ -242,12 +242,6 @@ class Client {
 
         b = function (a) {
           this.login(), this.joinGroup(), this.heartbeat(), e.bind(this)(a);
-        };
-      } else if (c === 'disconnect') {
-        var f = b;
-
-        b = function (a) {
-          this.logout(), f.bind(this)(a);
         };
       }
 
@@ -344,7 +338,7 @@ module.exports = {
 
 var danmaku = __webpack_require__(/*! ./client */ "../src/client.js");
 
-danmaku.stt = __webpack_require__(/*! ./stt */ "../src/stt.js"), danmaku.util = __webpack_require__(/*! ./util */ "../src/util.js"), danmaku.logger = __webpack_require__(/*! ./logger */ "../src/logger.js"), danmaku.Websocket = __webpack_require__(/*! ./websocket */ "../src/websocket.js"), module.exports = danmaku;
+danmaku.stt = __webpack_require__(/*! ./stt */ "../src/stt.js"), danmaku.util = __webpack_require__(/*! ./util */ "../src/util.js"), danmaku.logger = __webpack_require__(/*! ./logger */ "../src/logger.js"), danmaku.Websocket = __webpack_require__(/*! ./websocket */ "../src/websocket.js"), danmaku.packet = __webpack_require__(/*! ./packet */ "../src/packet.js"), module.exports = danmaku;
 
 /***/ }),
 
@@ -601,7 +595,7 @@ module.exports = {
   },
   anbc: function anbc() {// 未知的消息事件
   },
-  frank: function frank() {// 未知的消息事件
+  frank: function frank() {// 粉丝排行榜变化
   }
 };
 
