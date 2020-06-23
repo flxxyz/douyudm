@@ -5,18 +5,144 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>演示页面</title>
+    <script src="https://flxxyz.github.io/douyudm/dist/douyudanmaku.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <style>
+        .messageList {
+            text-decoration: none;
+            margin: 0;
+            padding: 0;
+            overflow-y: scroll;
+        }
+    </style>
 </head>
 
 <body>
-    <div>
-        <input id="roomId" type="number" placeholder="请输入房间号" value="">
-        <button id="s">确定</button>
-        <span id="tips"></span>
+    <div id='app'>
+        <div>
+            <input type='number' placeholder='请输入房间号' v-model='roomId'>
+            <button @click='enter'>确定</button>
+            <span>{{ tips }}</span>
+        </div>
+        <hr>
+        <ul class='messageList' :style='{height: messageListHeight}'>
+            <message v-for='message in messageList' :key='message.id' :message='message' />
+        </ul>
     </div>
-    <hr>
-    <ul id="messages" style="text-decoration:none;margin:0;padding:0;overflow-y:scroll;"></ul>
-    <script src="https://flxxyz.github.io/douyudm/dist/douyudanmaku.min.js"></script>
-    <script src="./index.js"></script>
+
+    <script>
+        Vue.component('message', {
+            template: '<li :id="className">{{ message.content }}</li>',
+            props: ['message'],
+            computed: {
+                className() {
+                    return `message-${this.message.id}`
+                }
+            },
+            mounted() {
+                document.querySelectorAll('li')[document.querySelectorAll('li').length - 1].scrollIntoView()
+            }
+        })
+
+        var app = new Vue({
+            el: '#app',
+            data() {
+                return {
+                    roomId: '231059',
+                    tips: '',
+                    messageList: [],
+                    messageListHeight: 'auto',
+                    room: null,
+                    closed: null,
+                    isClosed: true,
+                    gift: {},
+                }
+            },
+            methods: {
+                enter: function () {
+                    var txt = ''
+                    if (this.roomId && this.roomId > 0) {
+                        console.log('enter', this.roomId)
+
+                        //等待链接关闭再连接
+                        if (this.closed) {
+                            if (this.room) {
+                                this.room.logout()
+                            }
+                            return;
+                        }
+
+                        if (this.isClosed) {
+                            this.start(this.roomId)
+                        }
+
+                        this.closed = setInterval(() => {
+                            if (this.room.ws.socket.readyState === 3) {
+                                this.start(this.roomId)
+                            }
+                        }, 5)
+                    } else {
+                        txt = '请输入正确的房间号'
+                    }
+                    this.tips = txt
+                },
+                start: function (id) {
+                    this.isClosed = true
+                    this.messageList = []
+                    var echo = this.echo
+                    this.room = new danmaku(id)
+                    this.room.on('connect', () => {
+                        echo(`[connect] roomId=${id}`)
+                    })
+                    this.room.on('disconnect', () => {
+                        echo(`[disconnect] roomId=${id}`)
+                    })
+                    this.room.on('error', err => {
+                        echo(`[error] roomId=${id} ${err}`)
+                    })
+                    this.room.on('uenter', function (res) {
+                        echo(`[uenter] ${res.nn}进入房间`)
+                    })
+                    this.room.on('chatmsg', function (res) {
+                        echo(`[chatmsg] <lv ${res.level}> [${res.nn}] ${res.txt}`)
+                    })
+                    this.room.on('dgb', res => {
+                        var gf = this.gift[res.gfid] || '未知礼物'
+                        echo(`[dgb] 感谢${res.nn}送出${gf}  礼物id=${res.gfid}`)
+                    })
+                    this.room.run()
+                    this.isClosed = false
+                },
+                resize: function () {
+                    console.log('onresize')
+                    this.messageListHeight = (document.documentElement.clientHeight - 60) + 'px'
+                    var li = document.querySelectorAll('li')
+                    var liLast = li[li.length - 1]
+                    if (typeof liLast !== 'undefined') {
+                        liLast.scrollIntoView()
+                    }
+                },
+                echo: function (message) {
+                    console.log(message)
+                    this.messageList.push({
+                        id: this.uuid(),
+                        content: message,
+                    })
+                },
+                uuid: function () {
+                    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+                        let r = Math.random() * 16 | 0,
+                            v = c == 'x' ? r : r & 0x3 | 0x8;
+                        return v.toString(16);
+                    });
+                }
+            },
+            mounted() {
+                this.resize()
+                window.onresize = this.resize
+            },
+        })
+    </script>
 </body>
 
 </html>

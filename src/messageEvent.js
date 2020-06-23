@@ -70,12 +70,12 @@ module.exports = {
         //     type    表示为“房间开播提醒”消息,固定为 rss
         //     rid     房间 id
         //     gid     弹幕分组 id
-        //     ss      直播状态,0-没有直播,1-正在直播
+        //     ss      直播状态,1-正在直播, 2-没有直播
         //     code    类型
         //     rt      开关播原因:0-主播开关播,其他值-其他原因
         //     notify  通知类型
         //     endtime 关播时间(仅关播时有效)
-        console.log(r.ss ? config.MSG_LIVE_ON : config.MSG_LIVE_OFF)
+        console.log('[开播提醒]', r.ss == 1 ? config.MSG_LIVE_ON : config.MSG_LIVE_OFF)
     },
     bc_buy_deserve: function (r) {
         // 赠送酬勤通知
@@ -244,6 +244,6 @@ module.exports = {
         // 未知的消息事件
     },
     frank: function(r) {
-        // 未知的消息事件
+        // 粉丝排行榜变化
     },
 }
