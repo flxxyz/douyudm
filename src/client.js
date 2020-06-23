@@ -2,7 +2,7 @@ const config = require('./config')
 const event = require('./clientEvent')
 const stt = require('./stt')
 const util = require('./util')
-const bufferCoder = require('./bufferCoder')
+const packet = require('./packet')
 const messageEvent = require('./messageEvent')
 const logger = require('./logger')
 
@@ -39,7 +39,7 @@ class Client {
     }
 
     send(message) {
-        this.ws.send(bufferCoder.encode(stt.serialize(message)))
+        this.ws.send(packet.Encode(stt.serialize(message)))
     }
 
     login() {
@@ -117,10 +117,10 @@ class Client {
         return Object.assign(defOpts, options)
     }
 
-    messageHandle(m) {
-        bufferCoder.decode(m, (e) => {
-            const r = stt.deserialize(e)
-
+    messageHandle(data) {
+        packet.Decode(data, m => {
+            const r = stt.deserialize(m)
+    
             if (this.options.debug) {
                 const dbname = util.isBrowser() ? this.roomId : this.options.logfile
                 logger.init(dbname)

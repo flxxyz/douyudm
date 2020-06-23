@@ -18,6 +18,7 @@ const config = {
                         "@babel/plugin-transform-parameters",
                         "@babel/plugin-transform-for-of",
                         "@babel/plugin-transform-property-literals",
+                        "@babel/plugin-proposal-class-properties",
                         "babel-plugin-transform-remove-console",
                         "minify-simplify",
                         "minify-constant-folding",
