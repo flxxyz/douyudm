@@ -71,7 +71,6 @@ class Client {
         })
 
         clearInterval(this.heartbeatTask)
-        this.ws.close()
     }
 
     run(websocket) {
@@ -145,12 +144,6 @@ class Client {
                     this.login()
                     this.joinGroup()
                     this.heartbeat()
-                    cb.bind(this)(res)
-                }
-            } else if (clientEventName === 'disconnect') {
-                let cb = callback
-                callback = function (res) {
-                    this.logout()
                     cb.bind(this)(res)
                 }
             }
