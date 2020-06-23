@@ -1,6 +1,11 @@
 # douyudanmu
 实时获取斗鱼弹幕
 
+
+<a href="https://npmcharts.com/compare/vue?minimal=true"><img src="https://img.shields.io/npm/dm/douyudm.svg?sanitize=true" alt="Downloads" /></a>
+<a href="https://www.npmjs.com/package/douyudm"><img src="https://img.shields.io/npm/v/douyudm.svg?sanitize=true" alt="Version" /></a>
+<a href="https://www.npmjs.com/package/douyudm"><img src="https://img.shields.io/npm/l/douyudm.svg?sanitize=true" alt="License" /></a>
+
 > \>= 1.1.0 支持所有消息输出到文件
 
 ## 安装(命令行)
