@@ -58,7 +58,7 @@
                     isClosed: true,
                     gift: {},
                     fetchGift: null,
-                    intervalFetchGift: 60 * 1000,
+                    intervalFetchGift: 15 * 60 * 1000,
                     url: 'https://flxxyz.github.io/douyudm/example/web/host.json',
                     submitUrl: '',
                 }
@@ -83,6 +83,7 @@
 
                         this.closed = setInterval(() => {
                             if (this.room.ws.socket.readyState === 3) {
+                                clearInterval(this.fetchGift)
                                 this.start(this.roomId)
                             }
                         }, 5)
