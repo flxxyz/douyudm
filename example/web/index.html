@@ -60,7 +60,8 @@
                     fetchGift: null,
                     intervalFetchGift: 15 * 60 * 1000,
                     url: 'https://flxxyz.github.io/douyudm/example/web/host.json',
-                    submitUrl: '',
+                    douyuUrl: '',
+                    giftUrl: '',
                 }
             },
             methods: {
@@ -94,7 +95,7 @@
                 },
                 start: function (id) {
                     this.fetchGift = setInterval(() => {
-                        this.httpGet(`https://open.douyucdn.cn/api/RoomApi/room/${this.roomId}`, roomInfo => {
+                        this.httpGet(`${this.douyuUrl}/api/RoomApi/room/${this.roomId}`, roomInfo => {
                             var addGift = []
                             var roomGift = roomInfo.data.gift.reduce((previous, curr, index) => {
                                 addGift.push({
@@ -106,7 +107,7 @@
                             }, {})
                             console.log(addGift)
                             this.gift = Object.assign(this.gift, roomGift)
-                            this.httpPost(this.submitUrl, {
+                            this.httpPost(this.giftUrl, {
                                 body: JSON.stringify(addGift),
                                 method: 'POST',
                                 headers: {
@@ -188,8 +189,9 @@
             },
             created() {
                 this.httpGet(this.url, data => {
-                    this.submitUrl = `${data.url}?channel=douyu`
-                    this.httpGet(this.submitUrl, data => {
+                    this.douyuUrl = data.douyu
+                    this.giftUrl = `${data.gift}?channel=douyu`
+                    this.httpGet(this.giftUrl, data => {
                         if (Array.isArray(data.data)) data.data = {}
                         this.gift = Object.assign(this.gift, data.data)
 
