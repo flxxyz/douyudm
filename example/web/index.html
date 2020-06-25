@@ -22,9 +22,10 @@
         <div>
             <input type='number' placeholder='请输入房间号' v-model='roomId'>
             <button @click='enter'>确定</button>
-            <button @click='close' :disabled='!debug'>关闭</button>
-            <button @click='clear' :disabled='!debug'>清屏</button>
-            <button @click='logger' :disabled='!debug'>导出日志</button>
+            <button @click='close' :disabled='isClosed'>关闭</button>
+            <button @click='clear' :disabled='isClosed'>清屏</button>
+            <button @click='loggerExport' :disabled='!debug'>导出日志</button>
+            <button @click='loggerClear' :disabled='!debug'>清除日志</button>
             <input type="checkbox" v-model='debug'><label for="checkbox">调试模式</label>
             <span>{{ tips }}</span>
         </div>
@@ -52,7 +53,7 @@
             el: '#app',
             data() {
                 return {
-                    roomId: '231059',
+                    roomId: '605964',
                     tips: '',
                     messageList: [],
                     messageListHeight: 'auto',
@@ -152,11 +153,11 @@
                 close: function () {
                     if (this.room) {
                         this.room.logout()
+                        clearInterval(this.closed)
+                        clearInterval(this.fetchGift)
+                        this.closed = null
+                        this.isClosed = true
                     }
-                    clearInterval(this.closed)
-                    clearInterval(this.fetchGift)
-                    this.closed = null
-                    this.isClosed = true
                 },
                 resize: function () {
                     console.log('onresize')
@@ -193,8 +194,13 @@
                 clear: function () {
                     this.messageList = []
                 },
-                logger: function () {
-                    console.log(danmaku.logger)
+                loggerExport: function () {
+                    if (this.roomId && this.roomId > 0) {
+                        danmaku.logger.export(this.roomId)
+                    }
+                },
+                loggerClear: function () {
+                    danmaku.logger.clear()
                 }
             },
             created() {
