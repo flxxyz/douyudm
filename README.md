@@ -6,7 +6,7 @@
 <a href="https://www.npmjs.com/package/douyudm"><img src="https://img.shields.io/npm/v/douyudm.svg?sanitize=true" alt="Version" /></a>
 <a href="https://www.npmjs.com/package/douyudm"><img src="https://img.shields.io/npm/l/douyudm.svg?sanitize=true" alt="License" /></a>
 
-> \>= 1.1.0 支持所有消息输出到文件
+> \>= 1.1.1 支持所有消息输出到文件
 
 ## 安装(命令行)
 ```shell
@@ -29,7 +29,7 @@ douyudm -i 房间号
 ```
 
 ## 使用(WEB)
-挂载在window下，可通过 `douyudanmaku`, `danmaku`调用，开启 **debug** 可直接调用 `danmaku.logger.export()` 导出弹幕
+挂载在window下，可通过 `douyudanmaku`, `danmaku`调用
 ```
 <script>
 window.onload = function() {
@@ -58,6 +58,12 @@ window.onload = function() {
     })
     //开始监听
     room.run()
+
+    //导出日志(不传入房间号默认为所有)
+    room.logger.export(房间号)
+
+    //清除日志(不传入房间号默认为所有)
+    room.logger.clear(房间号)
 }
 </script>
 ```
