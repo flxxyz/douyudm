@@ -4,12 +4,12 @@ const stt = require('./stt')
 const util = require('./util')
 const packet = require('./packet')
 const messageEvent = require('./messageEvent')
-const logger = require('./logger')
 
 class Client {
     constructor(roomId, opts) {
         this.roomId = roomId
         this.ws = null
+        this.logger = null
         this.heartbeatTask = null
         this.messageEvent = messageEvent
         this.ignore = []
@@ -73,8 +73,10 @@ class Client {
         clearInterval(this.heartbeatTask)
     }
 
-    run(websocket) {
-        let ws = websocket || require('./websocket')
+    run(websocket, logger) {
+        const ws = websocket || require('./websocket')
+        const Logger = logger || require('./logger')
+        this.logger = new Logger()
         this.initSocket(ws)
     }
 
@@ -121,9 +123,8 @@ class Client {
             const r = stt.deserialize(m)
     
             if (this.options.debug) {
-                const dbname = util.isBrowser() ? this.roomId : this.options.logfile
-                logger.init(dbname)
-                logger.echo(r)
+                this.logger.init(util.isBrowser() ? this.roomId : this.options.logfile)
+                this.logger.echo(r)
             }
 
             if (Object.keys(this.messageEvent).filter(v => {

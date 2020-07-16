@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>演示页面</title>
-    <script src="https://flxxyz.github.io/douyudm/dist/douyudanmaku.min.js"></script>
+    <script src="https://flxxyz.github.io/douyudm/dist/douyudanmaku.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
     <style>
         .messageList {
@@ -24,8 +24,8 @@
             <button @click='enter'>确定</button>
             <button @click='close' :disabled='isClosed'>关闭</button>
             <button @click='clear' :disabled='isClosed'>清屏</button>
-            <button @click='loggerExport' :disabled='!debug'>导出日志</button>
-            <button @click='loggerClear' :disabled='!debug'>清除日志</button>
+            <button @click='loggerExport' :disabled='!isDebug'>导出日志</button>
+            <button @click='loggerClear' :disabled='!isDebug'>清除日志</button>
             <input type="checkbox" v-model='debug'><label for="checkbox">调试模式</label>
             <span>{{ tips }}</span>
         </div>
@@ -66,7 +66,7 @@
                     url: 'https://flxxyz.github.io/douyudm/example/web/host.json',
                     douyuUrl: '',
                     giftUrl: '',
-                    debug: false,
+                    debug: true,
                 }
             },
             methods: {
@@ -196,11 +196,21 @@
                 },
                 loggerExport: function () {
                     if (this.roomId && this.roomId > 0) {
-                        danmaku.logger.export(this.roomId)
+                        this.room.logger.export(this.roomId)
                     }
                 },
                 loggerClear: function () {
-                    danmaku.logger.clear()
+                    if (this.roomId && this.roomId > 0) {
+                        this.room.logger.clear(this.roomId)
+                    }
+                }
+            },
+            computed: {
+                isDebug() {
+                    if (!this.isClosed && this.debug) {
+                        return true
+                    }
+                    return false
                 }
             },
             created() {
