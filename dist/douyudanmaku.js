@@ -179,7 +179,7 @@ class Client {
     this.send({
       type: 'joingroup',
       rid: this.roomId,
-      gid: 0
+      gid: -9999
     });
   }
 
