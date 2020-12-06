@@ -361,9 +361,9 @@ class Logger {
       this.name = a;
       var b = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;
       this.DB = b.open('danmaku', this.version), this.DB.addEventListener('success', a => {
-        console.log('连接数据库', event, a), this.db = a.target.result;
+        console.log('连接数据库'), this.db = a.target.result;
       }), this.DB.addEventListener('upgradeneeded', a => {
-        console.log('升级数据库', event, a), this.db = a.target.result;
+        console.log('升级数据库'), this.db = a.target.result;
         var b = this.db.createObjectStore('douyu', {
           keyPath: 'id',
           autoIncrement: true
