@@ -26,7 +26,7 @@ describe('stt.js 斗鱼序列化反序列化', function () {
         // gbroadcast: '', // Todo
         qausrespond: 'rid@=3898464/sc@=1311900/sctn@=0/rid@=-1/type@=qausrespond/',
         // wiru: '', // Todo
-        // wirt: '', // Todo
+        wirt: 'type@=wirt/uid@=2810993/nick@=主播杨树/pos@=5/rid@=703747/',
         // mcspeacsite: '', // Todo
         // rank_change: '', // Todo
         // srres: '', // Todo
