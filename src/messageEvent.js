@@ -192,13 +192,13 @@ module.exports = {
     ranklist: function (r) {
         // 广播排行榜消息
     },
-    mrkl: function(r) {
+    mrkl: function (r) {
         // 心跳
     },
-    erquizisn: function(r) {
+    erquizisn: function (r) {
         // 鱼丸预言，参数未知
     },
-    blab: function(r) {
+    blab: function (r) {
         // 粉丝等级升级
         // 字段说明
         // type  表示为“粉丝等级升级”,固定为 blab
@@ -210,40 +210,70 @@ module.exports = {
         // lbl 未知（猜测未升级前的等级）
         // ba  未知
     },
-    rri: function(r) {
+    rri: function (r) {
         // 未知的消息事件
     },
-    synexp: function(r) {
+    synexp: function (r) {
 
     },
-    noble_num_info: function(r) {
+    noble_num_info: function (r) {
         // 未知的消息事件
     },
-    gbroadcast: function(r) {
+    gbroadcast: function (r) {
         // 未知的消息事件
     },
-    qausrespond: function(r) {
+    qausrespond: function (r) {
         // 未知的消息事件
     },
-    wiru: function(r) {
+    wiru: function (r) {
         // 未知的消息事件
     },
-    wirt: function(r) {
+    wirt: function (r) {
         // 未知的消息事件
     },
-    mcspeacsite: function(r) {
+    mcspeacsite: function (r) {
         // 未知的消息事件
     },
-    rank_change: function(r) {
+    rank_change: function (r) {
         // 未知的消息事件
     },
-    srres: function(r) {
+    srres: function (r) {
         // 未知的消息事件
     },
-    anbc: function(r) {
+    anbc: function (r) {
         // 未知的消息事件
     },
-    frank: function(r) {
+    frank: function (r) {
         // 粉丝排行榜变化
+    },
+    nlkstatus: function (r) {
+        // 未知的消息事件
+    },
+    pandoraboxinfo: function (r) {
+        // 未知的消息事件
+    },
+    ro_game_succ: function (r) {
+        // 未知的消息事件
+    },
+    lucky_wheel_star_pool: function (r) {
+        // 未知的消息事件
+    },
+    tsgs: function (r) {
+        // 未知的消息事件
+    },
+    fswrank: function (r) {
+        // 未知的消息事件
+    },
+    tsboxb: function (r) {
+        // 未知的消息事件
+    },
+    cthn: function (r) {
+        // 未知的消息事件
+    },
+    blab: function (r) {
+        // 未知的消息事件
+    },
+    configscreen: function (r) {
+        // 未知的消息事件
     },
 }

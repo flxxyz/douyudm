@@ -121,15 +121,13 @@ class Client {
     messageHandle(data) {
         packet.Decode(data, m => {
             const r = stt.deserialize(m)
-    
+
             if (this.options.debug) {
                 this.logger.init(util.isBrowser() ? this.roomId : this.options.logfile)
                 this.logger.echo(r)
             }
 
-            if (Object.keys(this.messageEvent).filter(v => {
-                    return !this.ignore.includes(v)
-                }).includes(r.type)) {
+            if (Object.keys(this.messageEvent).filter(v => !this.ignore.includes(v)).includes(r.type)) {
                 this.messageEvent[r.type](r)
             }
         })
