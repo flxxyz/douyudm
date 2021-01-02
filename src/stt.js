@@ -2,11 +2,11 @@ const util = require('./util')
 
 class STT {
     escape(v) {
-        return util.isUndefined(v) ? '' : v.toString().replace(/@/g, '@A').replace(/\//g, '@S')
+        return util.isUndefined(v) ? '' : v.toString().replace(/\//g, '@S').replace(/@/g, '@A')
     }
 
     unescape(v) {
-        return util.isUndefined(v) ? '' : v.toString().replace(/@A/g, '@').replace(/@S/g, '/')
+        return util.isUndefined(v) ? '' : v.toString().replace(/@S/g, '/').replace(/@A/g, '@')
     }
 
     serialize(raw) {
