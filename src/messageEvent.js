@@ -18,6 +18,7 @@ module.exports = {
         //     npv              是否需要手机验证
         //     best_dlev        最高酬勤等级
         //     cur_lev          酬勤等级
+        console.log('[loginres]', '登录成功');
     },
     chatmsg: function (r) {
         // 弹幕消息
