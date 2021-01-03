@@ -276,4 +276,7 @@ module.exports = {
     configscreen: function (r) {
         // 未知的消息事件
     },
+    rnewbc: function (r) {
+        // 未知的消息事件
+    }
 }

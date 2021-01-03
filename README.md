@@ -124,86 +124,65 @@ room.run()
 
 - - -
 
-|    消息事件    |        描述         |
-|:--------------:|:-------------------:|
-|    loginres    |        登入         |
-|    chatmsg     |      弹幕消息       |
-|     uenter     |      进入房间       |
-|    upgrade     |    用户等级提升     |
-|      rss       |    房间开播提醒     |
-| bc_buy_deserve |    赠送酬勤通知     |
-|      ssd       |      超级弹幕       |
-|      spbc      |   房间内礼物广播    |
-|      dgb       |      赠送礼物       |
-|   onlinegift   |    领取在线鱼丸     |
-|      ggbb      |   房间用户抢红包    |
-|     rankup     | 房间内top10变化消息 |
-|    ranklist    |   广播排行榜消息    |
-|      mrkl      |        心跳         |
-|   erquizisn    |      鱼丸预言       |
-|      blab      |    粉丝等级升级     |
-|      rri       |   未知的消息事件    |
-|     synexp     |   未知的消息事件    |
-| noble_num_info |   未知的消息事件    |
-|   gbroadcast   |   未知的消息事件    |
-|  qausrespond   |   未知的消息事件    |
-|      wiru      |   未知的消息事件    |
-|      wirt      |   未知的消息事件    |
-|  mcspeacsite   |   未知的消息事件    |
-|  rank_change   |   未知的消息事件    |
-|     srres      |   未知的消息事件    |
-|      anbc      |   未知的消息事件    |
-|     frank      |   未知的消息事件    |
+|       消息事件        |          描述          |
+|:---------------------:|:----------------------:|
+|       loginres        |          登入          |
+|        pingreq        | 跟随 **loginres** 一起 |
+|        chatmsg        |        弹幕消息        |
+|        uenter         |        进入房间        |
+|        upgrade        |      用户等级提升      |
+|          rss          |      房间开播提醒      |
+|    bc_buy_deserve     |      赠送酬勤通知      |
+|          ssd          |        超级弹幕        |
+|         spbc          |     房间内礼物广播     |
+|          dgb          |        赠送礼物        |
+|      onlinegift       |      领取在线鱼丸      |
+|         ggbb          |     房间用户抢红包     |
+|        rankup         |  房间内top10变化消息   |
+|       ranklist        |     广播排行榜消息     |
+|         mrkl          |          心跳          |
+|       erquizisn       |        鱼丸预言        |
+|         blab          |      粉丝等级升级      |
+|          rri          |     未知的消息事件     |
+|        synexp         |     未知的消息事件     |
+|    noble_num_info     |     未知的消息事件     |
+|      gbroadcast       |     未知的消息事件     |
+|      qausrespond      |     未知的消息事件     |
+|         wiru          |     未知的消息事件     |
+|         wirt          |     未知的消息事件     |
+|      mcspeacsite      |     未知的消息事件     |
+|      rank_change      |     未知的消息事件     |
+|         srres         |     未知的消息事件     |
+|         anbc          |     未知的消息事件     |
+|         frank         |     未知的消息事件     |
+|        rnewbc         |     未知的消息事件     |
+|       nlkstatus       |     未知的消息事件     |
+|    pandoraboxinfo     |     未知的消息事件     |
+|     ro_game_succ      |     未知的消息事件     |
+| lucky_wheel_star_pool |     未知的消息事件     |
+|         tsgs          |     未知的消息事件     |
+|        fswrank        |     未知的消息事件     |
+|        tsboxb         |     未知的消息事件     |
+|         cthn          |     未知的消息事件     |
+|     configscreen      | 估计是全屏广播显示礼物 |
+|        rnewbc         |     未知的消息事件     |
+
 
 ## 斗鱼STT序列化反序列化库
 
 STT序列化规定如下:
 
-    1. 键key和值value直接采用`@=`分割
-    2. 数组采用`/`分割
-    3. 如果key或者value中含有字符`/`， 则使用`@S`转义
-    4. 如果key或者value中含有字符`@`， 则使用`@A`转义
+> 1. 键key和值value直接采用`@=`分割
+> 2. 数组采用`/`分割
+> 3. 如果key或者value中含有字符`/`， 则使用`@S`转义
+> 4. 如果key或者value中含有字符`@`， 则使用`@A`转义
+
+### 序列化测试
 
 ```javascript
-//引入类库
-const stt = require('douyudm').stt
-
-//序列化测试数据
-const obj = {
-    type: 'chatmsg',
-    nn: '河马（￣。。￣）',
-    ic: 'avatar_v3/201912/b99d77251eb643b5a88bb81863afea4e',
-    cst: '1592152272402',
-    brid: '0',
-    lk: '',
-    list: [{
-        lev: '1',
-        num: '2'
-    }, {
-        lev: '7',
-        num: '3'
-    }]
-}
-
-//反序列化测试数据
-const str = 'type@=chatmsg/nn@=河马（￣。。￣）/ic@=avatar_v3@S201912@Sb99d77251eb643b5a88bb81863afea4e/cst@=1592152272402/brid@=0/lk@=/list@=lev@AA=1@ASnum@AA=2@AS@Slev@AA=7@ASnum@AA=3@AS@S/'
-
-// 1.序列化
-console.log(stt.serialize(obj))
-// 输出: type@=chatmsg/nn@=河马（￣。。￣）/ic@=avatar_v3@S201912@Sb99d77251eb643b5a88bb81863afea4e/cst@=1592152272402/brid@=0/lk@=/list@=lev@AA=1@ASnum@AA=2@AS@Slev@AA=7@ASnum@AA=3@AS@S/
-
-// 2.反序列化
-console.log(stt.deserialize(str))
-// 输出: 
-// {
-//   type: 'chatmsg',
-//   nn: '河马（￣。。￣）',
-//   ic: 'avatar_v3/201912/b99d77251eb643b5a88bb81863afea4e',
-//   cst: '1592152272402',
-//   brid: '0',
-//   lk: '',
-//   list: [ { lev: '1', num: '2' }, { lev: '7', num: '3' } ]
-// }
+npm run test:stt
+or
+yarn test:stt
 ```
 
 ## 后话

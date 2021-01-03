@@ -24,6 +24,7 @@
   "dependencies": {
     "commander": "^4.1.0",
     "fast-text-encoding": "^1.0.0",
+    "lowdb": "^1.0.0",
     "ws": "^7.2.1"
   },
   "publishConfig": {
@@ -41,6 +42,9 @@
     "mocha": "^8.0.1"
   },
   "scripts": {
-    "test": "mocha test/"
+    "test": "mocha test/",
+    "test:packet": "mocha test/packet.test.js",
+    "test:stt": "mocha test/stt.test.js",
+    "test:logger": "mocha test/logger.test.js"
   }
 }

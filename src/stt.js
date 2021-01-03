@@ -1,31 +1,29 @@
-const util = require('./util')
-
 class STT {
-    escape(v) {
+    static escape(v) {
         return v.toString().replace(/@/g, '@A').replace(/\//g, '@S');
     }
 
-    unescape(v) {
+    static unescape(v) {
         return v.toString().replace(/@S/g, '/').replace(/@A/g, '@');
     }
 
-    serialize(raw) {
-        if (util.isObject(raw)) {
+    static serialize(raw) {
+        if (Object.prototype.toString.call(raw).slice(8, -1) === 'Object') {
             return Object.entries(raw)
-                .map(([k, v]) => `${k}@=${this.serialize(v)}`)
+                .map(([k, v]) => `${k}@=${STT.serialize(v)}`)
                 .join('');
         } else if (Array.isArray(raw)) {
-            return raw.map(v => `${this.serialize(v)}`).join('');
+            return raw.map(v => `${STT.serialize(v)}`).join('');
         } else {
-            return this.escape(raw.toString()) + '/';
+            return STT.escape(raw.toString()) + '/';
         }
     }
 
-    deserialize(raw) {
+    static deserialize(raw) {
         if (raw.includes('//')) {
             return raw.split('//')
                 .filter(e => e !== '')
-                .map(item => this.deserialize(item));
+                .map(item => STT.deserialize(item));
         }
 
         if (raw.includes('@=')) {
@@ -33,12 +31,12 @@ class STT {
                 .filter(e => e !== '')
                 .reduce((o, s) => {
                     const [k, v] = s.split('@=');
-                    return o[k] = this.deserialize(v), o;
+                    return o[k] = v ? STT.deserialize(v) : '', o;
                 }, {});
         } else {
-            return this.unescape(raw);
+            return STT.unescape(raw);
         }
     }
 }
 
-module.exports = new STT()
+module.exports = STT;
