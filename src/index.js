@@ -1,10 +1,13 @@
 'use strict';
 
-const danmaku = require('./client')
-danmaku.stt = require('./stt')
-danmaku.util = require('./util')
-danmaku.logger = require('./logger')
-danmaku.Websocket = require('./websocket')
-danmaku.packet = require('./packet')
+const client = require('./client');
+const STT = require('./stt');
+const Packet = require('./packet');
+const Logger = require('./logger');
 
-module.exports = danmaku
+module.exports = {
+    client,
+    STT,
+    Packet,
+    Logger,
+};

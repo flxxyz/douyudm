@@ -62,26 +62,4 @@ BufferCoder.prototype.Encode = function (str, LE) {
     return new Uint8Array(r.buffer).set(message, offset), r.buffer
 }
 
-/**
- * blob转arraybuffer
- * @param {Blob} blob 待转换的Blob类型参数
- */
-BufferCoder.prototype.blob2ab = function (blob) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader()
-        reader.onload = function (e) {
-            resolve(e.target.result)
-        }
-        reader.readAsArrayBuffer(blob)
-    })
-}
-
-/**
- * arraybuffer转blob
- * @param {ArrayBuffer} ab 待转换的ArrayBuffer类型参数
- */
-BufferCoder.prototype.ab2blob = function (ab) {
-    return new Blob([ab])
-}
-
 module.exports = new BufferCoder()

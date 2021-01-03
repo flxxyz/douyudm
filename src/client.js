@@ -1,157 +1,107 @@
-const config = require('./config')
-const event = require('./clientEvent')
-const stt = require('./stt')
-const util = require('./util')
-const packet = require('./packet')
-const messageEvent = require('./messageEvent')
+const WebSocket = require('ws');
+const config = require('./config');
+const clientEvent = require('./clientEvent');
+const messageEvent = require('./messageEvent');
+const STT = require('./stt');
+const Packet = require('./packet');
+const Logger = require('./logger');
 
 class Client {
-    constructor(roomId, opts) {
-        this.roomId = roomId
-        this.ws = null
-        this.logger = null
-        this.heartbeatTask = null
-        this.messageEvent = messageEvent
-        this.ignore = []
-        this.options = this.setOptions(opts || {})
-        this.clientEvent = {
-            connect: {
-                name: 'open',
-                listener: event.open
-            },
-            disconnect: {
-                name: 'close',
-                listener: event.close
-            },
-            error: {
-                name: 'error',
-                listener: event.error
-            },
-        }
+    static initOpts = {
+        debug: false,
+        ignore: [],
+    };
+
+    constructor(roomId, opts = Client.initOpts) {
+        this.roomId = roomId;
+        this._ws = null;
+        this._heartbeatTask = null;
+        this.clientEvent = clientEvent;
+        this.messageEvent = messageEvent;
+
+        this.logger = new Logger(this.roomId);
+        this.debug = opts.debug;
+        this.ignore = opts.ignore;
     }
 
-    initSocket(ws) {
-        this.ws = new ws(config.URL)
-        this.ws.on('open', this.clientEvent.connect.listener.bind(this))
-        this.ws.on('error', this.clientEvent.error.listener.bind(this))
-        this.ws.on('close', this.clientEvent.disconnect.listener.bind(this))
-        this.ws.on('message', event.message.bind(this))
+    _initSocket = url => {
+        this._ws = new WebSocket(url);
+        this._ws.on('open', this.clientEvent.connect.bind(this));
+        this._ws.on('error', this.clientEvent.error.bind(this));
+        this._ws.on('close', this.clientEvent.disconnect.bind(this));
+        this._ws.on('message', this.messageHandle.bind(this));
     }
 
     send(message) {
-        this.ws.send(packet.Encode(stt.serialize(message)))
+        this._ws.send(Packet.Encode(STT.serialize(message)));
     }
 
-    login() {
+    login = () => {
         this.send({
             type: 'loginreq',
             roomid: this.roomId,
-        })
+        });
     }
 
-    joinGroup() {
+    joinGroup = () => {
         this.send({
             type: 'joingroup',
             rid: this.roomId,
-            gid: -9999
-        })
+            gid: -9999,
+        });
     }
 
-    heartbeat() {
-        this.heartbeatTask = setInterval(() => {
-            this.send({
-                type: 'mrkl'
-            })
-        }, config.HEARBEAT_INTERVAL * 1000)
+    heartbeat = () => {
+        const delay = config.HEARBEAT_INTERVAL * 1000;
+        this._heartbeatTask = setInterval(() => this.send({ type: 'mrkl' }), delay);
     }
 
-    logout() {
-        this.send({
-            type: 'logout',
-        })
-
-        clearInterval(this.heartbeatTask)
+    logout = () => {
+        this.send({ type: 'logout' });
+        clearInterval(this._heartbeatTask);
     }
 
-    run(websocket, logger) {
-        const ws = websocket || require('./websocket')
-        const Logger = logger || require('./logger')
-        this.logger = new Logger()
-        this.initSocket(ws)
-    }
-
-    setIgnore(key, value) {
-        if (util.isObject(key)) {
-            for (let i in key) {
-                if (key[i]) {
-                    this.ignore.push(i)
-                }
-            }
-        } else {
-            if (value) {
-                this.ignore.push(key)
-            }
-        }
-
-        return this
-    }
-
-    setOptions(opts) {
-        const defOpts = {
-            debug: false,
-            logfile: `${this.roomId}.log`,
-        }
-        const options = {}
-
-        if (!util.isObject(opts)) {
-            return defOpts
-        }
-
-        if (opts.hasOwnProperty('debug') && util.isBoolean(opts.debug)) {
-            options.debug = opts.debug
-        }
-
-        if (opts.hasOwnProperty('logfile') && util.isString(opts.logfile)) {
-            options.logfile = opts.logfile
-        }
-
-        return Object.assign(defOpts, options)
+    run = url => {
+        //目前已知的弹幕服务器
+        const port = 8500 + ((min, max) => Math.floor(Math.random() * (max - min + 1) + min))(1, 6);
+        this._initSocket(url || `wss://danmuproxy.douyu.com:${port}/`);
     }
 
     messageHandle(data) {
-        packet.Decode(data, m => {
-            const r = stt.deserialize(m)
+        Packet.Decode(data, m => {
+            const r = STT.deserialize(m);
 
-            if (this.options.debug) {
-                this.logger.init(util.isBrowser() ? this.roomId : this.options.logfile)
-                this.logger.echo(r)
+            if (this.debug) {
+                this.logger.write(r.type, m);
             }
 
-            if (Object.keys(this.messageEvent).filter(v => !this.ignore.includes(v)).includes(r.type)) {
-                this.messageEvent[r.type](r)
+            const isExist = Object.keys(this.messageEvent)
+                .filter(eventName => !this.ignore.includes(eventName))
+                .includes(r.type);
+            if (isExist) {
+                this.messageEvent[r.type](r);
             }
-        })
+        });
     }
 
     on(method, callback) {
-        const clientEventName = Object.keys(this.clientEvent).find(clientEvent => clientEvent === method.toLocaleLowerCase())
-        if (clientEventName) {
-            //在创建连接是触发connect事件时，发送登入，加入组，监听心跳消息
-            if (clientEventName === 'connect') {
-                let cb = callback
-                callback = function (res) {
-                    this.login()
-                    this.joinGroup()
-                    this.heartbeat()
-                    cb.bind(this)(res)
+        method = method.toLocaleLowerCase();
+
+        if (this.clientEvent.hasOwnProperty(method)) {
+            const clientEvent = this.clientEvent[method];
+            const listener = callback;
+            callback = function (e) {
+                if (['connect', 'disconnect'].includes(method)) {
+                    clientEvent.bind(this)();
                 }
+                listener.bind(this)(e);
             }
-            this.clientEvent[method].listener = callback.bind(this)
+
+            this.clientEvent[method] = callback;
         }
 
-        const messageEventName = Object.keys(this.messageEvent).find(messageEvent => messageEvent === method.toLocaleLowerCase())
-        if (messageEventName) {
-            this.messageEvent[method] = callback.bind(this)
+        if (this.messageEvent.hasOwnProperty(method)) {
+            this.messageEvent[method] = callback.bind(this);
         }
     }
 }
