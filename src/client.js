@@ -1,4 +1,4 @@
-const ws = require('ws');
+const WebSocket = require('ws');
 const config = require('./config');
 const clientEvent = require('./clientEvent');
 const messageEvent = require('./messageEvent');
@@ -25,15 +25,11 @@ class Client {
     }
 
     _initSocket = url => {
-        if (typeof MessageEvent !== 'undefined') {
-            this._ws = new WebSocket(url);
-        } else {
-            this._ws = new ws(url);
-        }
+        this._ws = new WebSocket(url);
         this._ws.on('open', this.clientEvent.connect.bind(this));
         this._ws.on('error', this.clientEvent.error.bind(this));
         this._ws.on('close', this.clientEvent.disconnect.bind(this));
-        this._ws.on('message', this.clientEvent.message.bind(this));
+        this._ws.on('message', this.messageHandle.bind(this));
     }
 
     send(message) {
@@ -71,7 +67,7 @@ class Client {
         this._initSocket(url || `wss://danmuproxy.douyu.com:${port}/`);
     }
 
-    messageHandle = data => {
+    messageHandle(data) {
         Packet.Decode(data, m => {
             const r = STT.deserialize(m);
 
@@ -90,8 +86,6 @@ class Client {
 
     on(method, callback) {
         method = method.toLocaleLowerCase();
-        // 不允许绑定 message 事件
-        if (method === 'message') return;
 
         if (this.clientEvent.hasOwnProperty(method)) {
             const clientEvent = this.clientEvent[method];

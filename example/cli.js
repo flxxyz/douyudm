@@ -3,7 +3,11 @@ const { client } = require('../src/index')
 
 //设置房间号，初始化
 const roomId = 102965;
-const room = new client(roomId, { debug: true, ignore: ['mrkl'] });
+const opts = {
+    debug: true,
+    ignore: ['mrkl'],
+};
+const room = new client(roomId, opts);
 
 //系统事件
 room.on('connect', function () {

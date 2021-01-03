@@ -1,29 +1,14 @@
 const low = require('lowdb');
 const FileSync = require('lowdb/adapters/FileSync');
-const LocalStorage = require('lowdb/adapters/LocalStorage');
 
 class Logger {
     constructor(roomId) {
-        let adapter = null;
-        if (typeof MessageEvent !== 'undefined') {
-            adapter = this._browser(roomId);
-        } else {
-            adapter = this._nodejs(roomId);
-        }
-        this._init(adapter);
-    }
-
-    _browser(roomId) {
-        this.dbname = `db-${roomId}`;
-        return new LocalStorage(this.dbname);
-    }
-
-    _nodejs(roomId) {
         this.dbname = `${roomId}.json`;
-        return new FileSync(this.dbname);
+        this._init();
     }
 
-    _init = (adapter) => {
+    _init = () => {
+        const adapter = new FileSync(this.dbname);
         this.db = low(adapter);
         this._struct = {};
     }
