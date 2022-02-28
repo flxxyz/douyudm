@@ -1,6 +1,6 @@
 {
   "name": "douyudm",
-  "version": "2.0.1",
+  "version": "2.1.0",
   "description": "实时获取斗鱼弹幕",
   "bin": {
     "douyudm": "src/cmd.js"
