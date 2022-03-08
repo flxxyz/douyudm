@@ -2,7 +2,7 @@
 
 const program = require('commander');
 const package = require('../package.json');
-const { client } = require('../src/index');
+const client = require('../src/index');
 
 program
     .requiredOption('-i, --id <number>', '输入房间id')
