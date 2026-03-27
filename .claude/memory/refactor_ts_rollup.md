@@ -30,15 +30,12 @@ src/
 ├── types/
 │   └── index.ts        # 所有 TS 接口和类型定义
 ├── events/
-│   └── messageEvent.ts # 30+ 消息类型默认处理器
-├── utils/
-│   └── noop-logger.ts  # ILogger 空实现（browser 用）
+│   └── messageEvent.ts # 全部已知消息类型默认处理器（含 gdp）
 ├── platform/
 │   ├── node.ts         # 简单 re-export Client（Rollup CJS/ESM 入口）
 │   └── browser.ts      # 简单 re-export Client（Rollup IIFE 入口）
 ├── cli/
-│   ├── cmd.ts          # CLI 入口（commander v14），不含 shebang（由 rollup banner 注入）
-│   └── logger.ts       # NodeLogger（lowdb + fs，仅 Node）
+│   └── cmd.ts          # CLI 入口（commander v14），不含 shebang（由 rollup banner 注入）
 └── index.ts            # Client 核心类（环境无关）
 
 __tests__/
@@ -144,10 +141,10 @@ interface IClient {
 // rollup.config.ts
 export default [
   // 1. CJS - Node.js require()
-  { input: 'src/platform/node.ts', output: { file: 'dist/index.cjs.js', format: 'cjs' }, external: ['ws', 'lowdb', ...] },
+  { input: 'src/platform/node.ts', output: { file: 'dist/index.cjs.js', format: 'cjs' }, external: ['ws', ...] },
 
   // 2. ESM - 现代打包器 / Node ESM
-  { input: 'src/platform/node.ts', output: { file: 'dist/index.esm.js', format: 'esm' }, external: ['ws', 'lowdb', ...] },
+  { input: 'src/platform/node.ts', output: { file: 'dist/index.esm.js', format: 'esm' }, external: ['ws', ...] },
 
   // 3. IIFE - 浏览器直接引用（压缩），全局变量名 douyudm（小写）
   { input: 'src/platform/browser.ts', output: { file: 'dist/douyudm.browser.min.js', format: 'iife', name: 'douyudm' }, plugins: [..., terser()] },
@@ -180,6 +177,12 @@ module.exports = {
   },
 };
 ```
+
+### 礼物事件区分
+
+- `gdp`：本房间礼物事件，表示"xx 赠送了礼物 xN"，**这是展示礼物的正确事件**
+- `dgb`：礼物原始事件，保留为空处理器，不建议直接使用
+- `spbc`：全站礼物广播，只有大额礼物触发，**不限于本房间**，消息中含 `nn`（目标主播昵称）属性
 
 ### 已知协议 Quirk（有测试文档化）
 
@@ -228,9 +231,9 @@ git push origin v3.x.x
 | 移除 | `fast-text-encoding` | Node 12+/现代浏览器原生支持 TextEncoder/TextDecoder |
 | 移除 | `mocha` | 替换为 Jest |
 | 移除 | `tslib` | 未配置 `importHelpers`，无需此包 |
+| 移除 | `lowdb` | 已去掉 debug/logger 功能，不再需要持久化日志 |
 | 升级 | `commander` → v14 | 使用 `program.opts()` 替代旧式访问 |
 | 升级 | `ws` → v8 | 支持 DOM-style API (`onopen` 等) |
-| 保留 | `lowdb` v1 | v2+ 改为 ESM-only + async，通过 ILogger 接口可后续单独替换 |
 | 新增 (dev) | `typescript`, `rollup`, `jest`, `ts-jest`, `@rollup/plugin-*` | 构建和测试基础设施 |
 
 ---
@@ -242,7 +245,8 @@ React 单文件（CDN 引入），功能：
 - 消息过滤折叠面板，勾选后**立即生效**（用 `ignoredRef` 持有最新状态，不传给 Client）
 - 过滤项和房间号持久化到 `localStorage`
 - 消息列表置底，新消息追加到底部，自动滚动
-- 订阅事件：`chatmsg` / `uenter` / `dgb`（赠送礼物）/ `spbc`（礼物广播）/ `error`
+- 订阅事件：`chatmsg` / `uenter` / `gdp`（本房间礼物）/ `spbc`（全站礼物广播）/ `error`
+- 过滤面板包含全部 29 个已知消息事件类型，默认屏蔽低频/噪音事件，只展示 `chatmsg`、`gdp`、`spbc`、`onlinegift`、`ssd`
 - 消息 key 用自增 id，避免 `Date.now()` 同毫秒重复
 
 ---
