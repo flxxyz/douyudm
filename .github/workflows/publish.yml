@@ -22,11 +22,12 @@ jobs:
 
       - name: Sync version from tag
         run: |
-          npm version ${GITHUB_REF_NAME#v} --no-git-tag-version
+          VERSION=${GITHUB_REF_NAME#v}
+          jq ".version = \"$VERSION\"" package.json > package.json.tmp && mv package.json.tmp package.json
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add package.json
-          git commit -m "chore: bump version to ${GITHUB_REF_NAME}"
+          git diff --cached --quiet || git commit -m "chore: bump version to ${GITHUB_REF_NAME}"
           git push origin HEAD:refs/heads/master
 
       - name: Install dependencies
