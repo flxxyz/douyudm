@@ -34,8 +34,8 @@ src/
 ├── utils/
 │   └── noop-logger.ts  # ILogger 空实现（browser 用）
 ├── platform/
-│   ├── node.ts         # NodeClient：注入 ws 作为 WebSocket 实现
-│   └── browser.ts      # BrowserClient：注入 native WebSocket
+│   ├── node.ts         # 简单 re-export Client（Rollup CJS/ESM 入口）
+│   └── browser.ts      # 简单 re-export Client（Rollup IIFE 入口）
 ├── cli/
 │   ├── cmd.ts          # CLI 入口（commander v14）
 │   └── logger.ts       # NodeLogger（lowdb + fs，仅 Node）
@@ -106,7 +106,7 @@ export default [
   { input: 'src/platform/node.ts', output: { file: 'dist/index.esm.js', format: 'esm' }, external: ['ws', 'lowdb', ...] },
 
   // 3. IIFE - 浏览器直接引用（压缩）
-  { input: 'src/platform/browser.ts', output: { file: 'dist/douyudm.browser.min.js', format: 'iife', name: 'DouyuDM' }, plugins: [..., terser()] },
+  { input: 'src/platform/browser.ts', output: { file: 'dist/douyudm.browser.min.js', format: 'iife', name: 'douyudm' }, plugins: [..., terser()] },
 
   // 4. CLI binary
   { input: 'src/cli/cmd.ts', output: { file: 'dist/cli/cmd.js', format: 'cjs', banner: '#!/usr/bin/env node' }, external: ['ws', 'lowdb', 'commander'] },
@@ -152,9 +152,9 @@ rollup -c rollup.config.ts --configPlugin @rollup/plugin-typescript
 
 ### Jest + ts-jest（替换原 Mocha）
 
-```typescript
-// jest.config.ts
-export default {
+```javascript
+// jest.config.js（注意：.js 而非 .ts，避免引入 ts-node 依赖）
+module.exports = {
   preset: 'ts-jest',
   testMatch: ['**/__tests__/**/*.test.ts'],
   collectCoverageFrom: ['src/core/stt.ts', 'src/core/packet.ts'],
@@ -189,6 +189,28 @@ export default {
 | 升级 | `ws` → v8 | 支持 DOM-style API (`onopen` 等) |
 | 保留 | `lowdb` v1 | v2+ 改为 ESM-only + async，升级成本高；通过 ILogger 接口可后续单独替换 |
 | 新增 (dev) | `typescript`, `rollup`, `jest`, `ts-jest`, `@rollup/plugin-*` | 构建和测试基础设施 |
+
+---
+
+## 事件回调 API 设计
+
+### 系统事件（connect / disconnect / error）
+
+```typescript
+type ClientEventHandler = (client: IClient, err?: Error) => void;
+```
+
+第一个参数是 `IClient` 实例，支持箭头函数访问 `client.roomId`。
+
+### 消息事件（chatmsg / uenter 等）
+
+```typescript
+type MessageHandler = (r: STTObject, client?: IClient) => void;
+```
+
+第一个参数是消息数据，第二个参数 `client` 可选，需要访问实例时才声明。
+
+**Why:** 原设计用 `function(this: Client)` 绑定 `this`，箭头函数无法访问 `this.roomId`。改为显式参数后，箭头函数和普通函数均可使用。
 
 ---
 
