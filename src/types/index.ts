@@ -12,7 +12,7 @@ export type PacketDecodeCallback = (message: string) => void;
 
 export type MessageEventType =
   | 'loginres' | 'chatmsg' | 'uenter' | 'upgrade' | 'rss'
-  | 'bc_buy_deserve' | 'ssd' | 'spbc' | 'dgb' | 'onlinegift'
+  | 'bc_buy_deserve' | 'ssd' | 'spbc' | 'dgb' | 'gdp' | 'onlinegift'
   | 'ggbb' | 'rankup' | 'ranklist' | 'mrkl' | 'erquizisn'
   | 'blab' | 'rri' | 'synexp' | 'noble_num_info' | 'gbroadcast'
   | 'qausrespond' | 'wiru' | 'wirt' | 'mcspeacsite' | 'rank_change'
