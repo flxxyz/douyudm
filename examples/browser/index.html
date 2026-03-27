@@ -19,7 +19,7 @@
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
   <script type="text/babel">
-    const { useState, useRef, useCallback } = React
+    const { useState, useRef, useEffect } = React
 
     let _id = 0
     const nextId = () => ++_id
@@ -49,6 +49,13 @@
       const [ignored, setIgnored] = useState(new Set(['mrkl', 'uenter', 'upgrade', 'rankup', 'ranklist']))
       const [filterOpen, setFilterOpen] = useState(false)
       const clientRef = useRef(null)
+      const listRef = useRef(null)
+
+      useEffect(() => {
+        if (listRef.current) {
+          listRef.current.scrollTop = listRef.current.scrollHeight
+        }
+      }, [messages])
 
       const toggleIgnore = (value) => {
         setIgnored(prev => {
@@ -58,7 +65,8 @@
         })
       }
 
-      const connect = useCallback(debounce(() => {
+      const connectRef = useRef(null)
+      connectRef.current = () => {
         if (!roomId.trim() || clientRef.current) return
 
         setStatus('connecting')
@@ -75,21 +83,23 @@
 
         client.on('error', (c, err) => {
           setStatus('disconnected')
-          setMessages(prev => [{ id: nextId(), type: 'error', text: err.message }, ...prev])
+          setMessages(prev => [...prev, { id: nextId(), type: 'error', text: err.message }])
           clientRef.current = null
         })
 
         client.on('chatmsg', (res) => {
-          setMessages(prev => [{ id: nextId(), type: 'chat', nn: res.nn, level: res.level, txt: res.txt }, ...prev])
+          setMessages(prev => [...prev, { id: nextId(), type: 'chat', nn: res.nn, level: res.level, txt: res.txt }])
         })
 
         client.on('uenter', (res) => {
-          setMessages(prev => [{ id: nextId(), type: 'enter', nn: res.nn }, ...prev])
+          setMessages(prev => [...prev, { id: nextId(), type: 'enter', nn: res.nn }])
         })
 
         client.run()
         clientRef.current = client
-      }, 300), [])
+      }
+
+      const connect = debounce(() => connectRef.current(), 300)
 
       const disconnect = () => {
         if (clientRef.current) {
@@ -151,7 +161,7 @@
             {statusText[status]}
           </div>
 
-          <ul style={{ listStyle: 'none', padding: 0 }}>
+          <ul ref={listRef} style={{ listStyle: 'none', padding: 0, maxHeight: 400, overflowY: 'auto' }}>
             {messages.map(msg => (
               <li key={msg.id} style={{ padding: '4px 0', borderBottom: '1px solid #eee', fontSize: 14 }}>
                 {msg.type === 'chat' && <>
