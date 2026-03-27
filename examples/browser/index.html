@@ -24,6 +24,14 @@
     let _id = 0
     const nextId = () => ++_id
 
+    const debounce = (fn, delay) => {
+      let timer = null
+      return (...args) => {
+        clearTimeout(timer)
+        timer = setTimeout(() => fn(...args), delay)
+      }
+    }
+
     const FILTER_OPTIONS = [
       { value: 'mrkl',   label: '心跳 (mrkl)' },
       { value: 'uenter', label: '进入房间 (uenter)' },
@@ -50,7 +58,7 @@
         })
       }
 
-      const connect = () => {
+      const connect = useCallback(debounce(() => {
         if (!roomId.trim() || clientRef.current) return
 
         setStatus('connecting')
@@ -81,7 +89,7 @@
 
         client.run()
         clientRef.current = client
-      }
+      }, 300), [])
 
       const disconnect = () => {
         if (clientRef.current) {
