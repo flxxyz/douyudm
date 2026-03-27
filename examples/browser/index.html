@@ -39,7 +39,7 @@
       { value: 'rankup', label: 'Top10变化 (rankup)' },
       { value: 'ranklist', label: '排行榜 (ranklist)' },
       { value: 'spbc',   label: '礼物广播 (spbc)' },
-      { value: 'dgb',    label: '赠送礼物 (dgb)' },
+      { value: 'gdp',    label: '赠送礼物 (gdp)' },
     ]
 
     function App() {
@@ -108,8 +108,8 @@
           setMessages(prev => [...prev, { id: nextId(), type: 'enter', nn: res.nn }])
         })
 
-        client.on('dgb', (res) => {
-          if (ignoredRef.current.has('dgb')) return
+        client.on('gdp', (res) => {
+          if (ignoredRef.current.has('gdp')) return
           setMessages(prev => [...prev, { id: nextId(), type: 'gift', nn: res.nn, gfn: res.gfn, gfcnt: res.gfcnt }])
         })
 

@@ -126,8 +126,9 @@ client.on('error', (client, err) => console.error(`[error] roomId=${client.roomI
 | `rss` | 房间开播/关播提醒 |
 | `bc_buy_deserve` | 赠送酬勤通知 |
 | `ssd` | 超级弹幕 |
-| `spbc` | 房间内礼物广播 |
-| `dgb` | 赠送礼物 |
+| `spbc` | 全站礼物广播（大额礼物，不限本房间）|
+| `dgb` | 赠送礼物（原始事件）|
+| `gdp` | 本房间礼物事件（xx 赠送礼物 xN）|
 | `onlinegift` | 领取在线鱼丸 |
 | `ggbb` | 房间用户抢红包 |
 | `rankup` | 房间 Top10 变化 |

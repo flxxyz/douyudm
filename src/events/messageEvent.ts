@@ -34,6 +34,10 @@ export function createDefaultMessageEvents(): MessageEventMap {
 
     dgb(_r) {},
 
+    gdp(r) {
+      console.log(`------------- [${r.nn}] 赠送了 ${r.gfn}x${r.gfcnt}`);
+    },
+
     onlinegift(r) {
       console.log(`------------- [${r.nn}] 领取鱼丸x${r.sil}`);
     },
