@@ -33,13 +33,35 @@
     }
 
     const FILTER_OPTIONS = [
-      { value: 'mrkl',   label: '心跳 (mrkl)' },
-      { value: 'uenter', label: '进入房间 (uenter)' },
-      { value: 'upgrade', label: '等级提升 (upgrade)' },
-      { value: 'rankup', label: 'Top10变化 (rankup)' },
-      { value: 'ranklist', label: '排行榜 (ranklist)' },
-      { value: 'spbc',   label: '礼物广播 (spbc)' },
-      { value: 'gdp',    label: '赠送礼物 (gdp)' },
+      { value: 'chatmsg',     label: '弹幕 (chatmsg)' },
+      { value: 'uenter',      label: '进入房间 (uenter)' },
+      { value: 'upgrade',     label: '等级提升 (upgrade)' },
+      { value: 'rss',         label: '开播/关播 (rss)' },
+      { value: 'gdp',         label: '赠送礼物 (gdp)' },
+      { value: 'dgb',         label: '礼物原始事件 (dgb)' },
+      { value: 'spbc',        label: '全站礼物广播 (spbc)' },
+      { value: 'bc_buy_deserve', label: '酬勤通知 (bc_buy_deserve)' },
+      { value: 'ssd',         label: '超级弹幕 (ssd)' },
+      { value: 'onlinegift',  label: '领取鱼丸 (onlinegift)' },
+      { value: 'ggbb',        label: '抢红包 (ggbb)' },
+      { value: 'rankup',      label: 'Top10变化 (rankup)' },
+      { value: 'ranklist',    label: '排行榜广播 (ranklist)' },
+      { value: 'mrkl',        label: '心跳 (mrkl)' },
+      { value: 'blab',        label: '粉丝等级升级 (blab)' },
+      { value: 'frank',       label: '粉丝排行榜变化 (frank)' },
+      { value: 'anbc',        label: '全站礼物广播 (anbc)' },
+      { value: 'cthn',        label: '跨房间弹幕 (cthn)' },
+      { value: 'configscreen', label: '全屏广播 (configscreen)' },
+      { value: 'nlkstatus',   label: '大乱斗状态 (nlkstatus)' },
+      { value: 'tsgs',        label: '宝箱礼物 (tsgs)' },
+      { value: 'tsboxb',      label: '宝箱广播 (tsboxb)' },
+      { value: 'ro_game_succ', label: '游戏成功 (ro_game_succ)' },
+      { value: 'pandoraboxinfo', label: '潘多拉盒子 (pandoraboxinfo)' },
+      { value: 'lucky_wheel_star_pool', label: '幸运转盘 (lucky_wheel_star_pool)' },
+      { value: 'noble_num_info', label: '贵族数量 (noble_num_info)' },
+      { value: 'synexp',      label: '经验同步 (synexp)' },
+      { value: 'wirt',        label: '直播间互动 (wirt)' },
+      { value: 'rnewbc',      label: '新广播 (rnewbc)' },
     ]
 
     function App() {
@@ -49,9 +71,9 @@
       const [ignored, setIgnored] = useState(() => {
         try {
           const saved = localStorage.getItem('ignored')
-          return saved ? new Set(JSON.parse(saved)) : new Set(['mrkl', 'uenter', 'upgrade', 'rankup', 'ranklist'])
+          return saved ? new Set(JSON.parse(saved)) : new Set(['mrkl', 'uenter', 'upgrade', 'rankup', 'ranklist', 'rss', 'bc_buy_deserve', 'ggbb', 'blab', 'frank', 'anbc', 'nlkstatus', 'tsgs', 'tsboxb', 'ro_game_succ', 'pandoraboxinfo', 'lucky_wheel_star_pool', 'noble_num_info', 'synexp', 'wirt', 'rnewbc', 'configscreen', 'dgb', 'cthn'])
         } catch {
-          return new Set(['mrkl', 'uenter', 'upgrade', 'rankup', 'ranklist'])
+          return new Set(['mrkl', 'uenter', 'upgrade', 'rankup', 'ranklist', 'rss', 'bc_buy_deserve', 'ggbb', 'blab', 'frank', 'anbc', 'nlkstatus', 'tsgs', 'tsboxb', 'ro_game_succ', 'pandoraboxinfo', 'lucky_wheel_star_pool', 'noble_num_info', 'synexp', 'wirt', 'rnewbc', 'configscreen', 'dgb', 'cthn'])
         }
       })
       const [filterOpen, setFilterOpen] = useState(false)
