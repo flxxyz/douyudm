@@ -35,14 +35,15 @@ export type {
 } from './types';
 
 function defaultWsFactory(url: string): IWebSocket {
-  // Browser: native WebSocket
-  if (typeof WebSocket !== 'undefined') {
-    return new WebSocket(url) as unknown as IWebSocket;
+  // Node.js: always use ws package (Node v21+ has built-in WebSocket via undici
+  // but its onmessage event.data is Blob, not Buffer — incompatible with our Packet decoder)
+  if (typeof process !== 'undefined' && process.versions?.node) {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const WS = require('ws');
+    return new WS(url) as unknown as IWebSocket;
   }
-  // Node.js: ws package
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const WS = require('ws');
-  return new WS(url) as unknown as IWebSocket;
+  // Browser: native WebSocket
+  return new WebSocket(url) as unknown as IWebSocket;
 }
 
 const DANMU_PORTS = [8501, 8502, 8503, 8504, 8505, 8506];
