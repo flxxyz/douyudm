@@ -9,7 +9,7 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
       id-token: write
 
     steps:
@@ -19,6 +19,15 @@ jobs:
         with:
           node-version: '20'
           registry-url: 'https://registry.npmjs.org'
+
+      - name: Sync version from tag
+        run: |
+          npm version ${GITHUB_REF_NAME#v} --no-git-tag-version
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add package.json
+          git commit -m "chore: bump version to ${GITHUB_REF_NAME}"
+          git push origin HEAD:refs/heads/master
 
       - name: Install dependencies
         run: npm ci
