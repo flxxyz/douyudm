@@ -84,6 +84,8 @@ client.run()
 </script>
 ```
 
+完整示例见 [examples/](examples/) 目录。
+
 ## 选项
 
 ```typescript
