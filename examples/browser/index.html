@@ -43,10 +43,17 @@
     ]
 
     function App() {
-      const [roomId, setRoomId] = useState('9999')
+      const [roomId, setRoomId] = useState(() => localStorage.getItem('roomId') ?? '9999')
       const [status, setStatus] = useState('disconnected')
       const [messages, setMessages] = useState([])
-      const [ignored, setIgnored] = useState(new Set(['mrkl', 'uenter', 'upgrade', 'rankup', 'ranklist']))
+      const [ignored, setIgnored] = useState(() => {
+        try {
+          const saved = localStorage.getItem('ignored')
+          return saved ? new Set(JSON.parse(saved)) : new Set(['mrkl', 'uenter', 'upgrade', 'rankup', 'ranklist'])
+        } catch {
+          return new Set(['mrkl', 'uenter', 'upgrade', 'rankup', 'ranklist'])
+        }
+      })
       const [filterOpen, setFilterOpen] = useState(false)
       const clientRef = useRef(null)
       const listRef = useRef(null)
@@ -61,6 +68,7 @@
         setIgnored(prev => {
           const next = new Set(prev)
           next.has(value) ? next.delete(value) : next.add(value)
+          localStorage.setItem('ignored', JSON.stringify([...next]))
           return next
         })
       }
@@ -121,7 +129,7 @@
             <input
               type="number"
               value={roomId}
-              onChange={e => setRoomId(e.target.value)}
+              onChange={e => { setRoomId(e.target.value); localStorage.setItem('roomId', e.target.value) }}
               placeholder="输入房间号"
               disabled={!isDisconnected}
               style={{ flex: 1, padding: '6px 10px', fontSize: 14, border: '1px solid #ccc', borderRadius: 4 }}
