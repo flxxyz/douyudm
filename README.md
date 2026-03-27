@@ -34,9 +34,6 @@ pnpm add -g douyudm
 # 监听房间弹幕
 douyudm -i 9999
 
-# 开启 debug 模式（消息写入 9999.json）
-douyudm -i 9999 --debug
-
 # 忽略指定事件
 douyudm -i 9999 --ignore mrkl,uenter
 
@@ -95,7 +92,6 @@ new Client(roomId, opts?)
 | 参数 | 类型 | 默认值 | 说明 |
 |------|------|--------|------|
 | `roomId` | `string \| number` | — | 房间号 |
-| `opts.debug` | `boolean` | `false` | 开启后将所有消息写入 `<roomId>.json` |
 | `opts.ignore` | `string[]` | `[]` | 忽略的消息事件列表 |
 
 ## 事件列表
