@@ -33,7 +33,6 @@ export type ClientEventHandler = (client: IClient, err?: Error) => void;
 // ─── Client Options ───────────────────────────────────────────────────────────
 
 export interface ClientOptions {
-  debug?: boolean;
   ignore?: MessageEventType[];
 }
 
@@ -49,13 +48,6 @@ export interface IWebSocket {
 }
 
 export type WebSocketFactory = (url: string) => IWebSocket;
-
-// ─── Logger Interface ─────────────────────────────────────────────────────────
-
-export interface ILogger {
-  write(type: string, message: string): void;
-  read?(type: string): unknown;
-}
 
 // ─── Message Shapes ───────────────────────────────────────────────────────────
 

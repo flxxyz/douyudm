@@ -11,9 +11,6 @@ importers:
       commander:
         specifier: ^14.0.2
         version: 14.0.3
-      lowdb:
-        specifier: ^1.0.0
-        version: 1.0.0
       ws:
         specifier: ^8.19.0
         version: 8.20.0
@@ -36,9 +33,6 @@ importers:
       '@types/jest':
         specifier: ^29.5.14
         version: 29.5.14
-      '@types/lowdb':
-        specifier: ^1.0.15
-        version: 1.0.15
       '@types/node':
         specifier: ^22.15.3
         version: 22.19.15
@@ -540,12 +534,6 @@ packages:
   '@types/jest@29.5.14':
     resolution: {integrity: sha512-ZN+4sdnLUbo8EVvVc2ao0GFW6oVrQRPn4K2lglySj7APvSrgzxHiNNK99us4WDMi57xxA2yggblIAMNhXOotLQ==}
 
-  '@types/lodash@4.17.24':
-    resolution: {integrity: sha512-gIW7lQLZbue7lRSWEFql49QJJWThrTFFeIMJdp3eH4tKoxm1OvEPg02rm4wCCSHS0cL3/Fizimb35b7k8atwsQ==}
-
-  '@types/lowdb@1.0.15':
-    resolution: {integrity: sha512-xaMNIveDCryK4UvnUJOc2BCOH0lPivdvWHrutsLryo9r9Id3RqZq2RDmT4eddiEPYzu7nJMw6nFIcVifcqjWqg==}
-
   '@types/node@22.19.15':
     resolution: {integrity: sha512-F0R/h2+dsy5wJAUe3tAU6oqa2qbWY5TpNfL/RGmo1y38hiyO1w3x2jPtt76wmuaJI4DQnOBu21cNXQ2STIUUWg==}
 
@@ -905,9 +893,6 @@ packages:
     resolution: {integrity: sha512-41Cifkg6e8TylSpdtTpeLVMqvSBEVzTttHvERD741+pnZ8ANv0004MRL43QKPDlK9cGvNp6NZWZUBlbGXYxxng==}
     engines: {node: '>=0.12.0'}
 
-  is-promise@2.2.2:
-    resolution: {integrity: sha512-+lP4/6lKUBfQjZ2pdxThZvLUAafmZb8OAxFb8XXtiQmS35INgr85hdOGoEs124ez1FCnZJt6jau/T+alh58QFQ==}
-
   is-reference@1.2.1:
     resolution: {integrity: sha512-U82MsXXiFIrjCK4otLT+o2NA2Cd2g5MLoOVXUZjIOhLurrRxpEXzI8O0KZHr3IjLvlAH1kTPYSuqer5T9ZVBKQ==}
 
@@ -1109,13 +1094,6 @@ packages:
   lodash.memoize@4.1.2:
     resolution: {integrity: sha512-t7j+NzmgnQzTAYXcsHYLgimltOV1MXHtlOWf6GjL9Kj8GK5FInw5JotxvbOs+IvV1/Dzo04/fCGfLVs7aXb4Ag==}
 
-  lodash@4.17.23:
-    resolution: {integrity: sha512-LgVTMpQtIopCi79SJeDiP0TfWi5CNEc/L/aRdTh3yIvmZXTnheWpKjSZhnvMl8iXbC1tFg9gdHHDMLoV7CnG+w==}
-
-  lowdb@1.0.0:
-    resolution: {integrity: sha512-2+x8esE/Wb9SQ1F9IHaYWfsC9FIecLOPrK4g17FGEayjUWH172H6nwicRovGvSE2CPZouc2MCIqCI7h9d+GftQ==}
-    engines: {node: '>=4'}
-
   lru-cache@5.1.1:
     resolution: {integrity: sha512-KpNARQA3Iwv+jTA0utUVVbrh+Jlrr1Fv0e56GGzAFOXN7dk/FviaDW8LHmK52DlcH4WP2n6gI8vN1aesBFgo9w==}
 
@@ -1225,10 +1203,6 @@ packages:
     resolution: {integrity: sha512-QP88BAKvMam/3NxH6vj2o21R6MjxZUAd6nlwAS/pnGvN9IVLocLHxGYIzFhg6fUQ+5th6P4dv4eW9jX3DSIj7A==}
     engines: {node: '>=12'}
 
-  pify@3.0.0:
-    resolution: {integrity: sha512-C3FsVNH1udSEX48gGX1xfvwTWfsYWj5U+8/uK15BGzIGrKoUpghX8hWZwa/OFnakBiiVNmBvemTJR5mcy7iPcg==}
-    engines: {node: '>=4'}
-
   pirates@4.0.7:
     resolution: {integrity: sha512-TfySrs/5nm8fQJDcBDuUng3VOUKsd7S+zqvbOTiGXHfxX4wK31ard+hoNuvkicM/2YFzlpDgABOevKSsB4G/FA==}
     engines: {node: '>= 6'}
@@ -1333,9 +1307,6 @@ packages:
   stack-utils@2.0.6:
     resolution: {integrity: sha512-XlkWvfIm6RmsWtNJx+uqtKLS8eqFbxUg0ZzLXqY0caEy9l7hruX8IpiDnjsLavoBgqCCR71TqWO8MaXYheJ3RQ==}
     engines: {node: '>=10'}
-
-  steno@0.4.4:
-    resolution: {integrity: sha512-EEHMVYHNXFHfGtgjNITnka0aHhiAlo93F7z2/Pwd+g0teG9CnM3JIINM7hVVB5/rhw9voufD7Wukwgtw2uqh6w==}
 
   string-length@4.0.2:
     resolution: {integrity: sha512-+l6rNN5fYHNhZZy41RXsYptCjA2Igmq4EG7kZAYFQI1E1VTXarr6ZPXBg6eq7Y6eK4FEhY6AJlyuFIb/v/S0VQ==}
@@ -2074,12 +2045,6 @@ snapshots:
       expect: 29.7.0
       pretty-format: 29.7.0
 
-  '@types/lodash@4.17.24': {}
-
-  '@types/lowdb@1.0.15':
-    dependencies:
-      '@types/lodash': 4.17.24
-
   '@types/node@22.19.15':
     dependencies:
       undici-types: 6.21.0
@@ -2416,8 +2381,6 @@ snapshots:
   is-module@1.0.0: {}
 
   is-number@7.0.0: {}
-
-  is-promise@2.2.2: {}
 
   is-reference@1.2.1:
     dependencies:
@@ -2801,16 +2764,6 @@ snapshots:
 
   lodash.memoize@4.1.2: {}
 
-  lodash@4.17.23: {}
-
-  lowdb@1.0.0:
-    dependencies:
-      graceful-fs: 4.2.11
-      is-promise: 2.2.2
-      lodash: 4.17.23
-      pify: 3.0.0
-      steno: 0.4.4
-
   lru-cache@5.1.1:
     dependencies:
       yallist: 3.1.1
@@ -2902,8 +2855,6 @@ snapshots:
   picomatch@2.3.2: {}
 
   picomatch@4.0.4: {}
-
-  pify@3.0.0: {}
 
   pirates@4.0.7: {}
 
@@ -3018,10 +2969,6 @@ snapshots:
   stack-utils@2.0.6:
     dependencies:
       escape-string-regexp: 2.0.0
-
-  steno@0.4.4:
-    dependencies:
-      graceful-fs: 4.2.11
 
   string-length@4.0.2:
     dependencies:
