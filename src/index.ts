@@ -1,6 +1,5 @@
 import type {
   IWebSocket,
-  ILogger,
   IClient,
   ClientOptions,
   ClientEventName,
@@ -12,7 +11,6 @@ import type {
 import { STT } from './core/stt';
 import { Packet } from './core/packet';
 import { HEARTBEAT_INTERVAL } from './core/config';
-import { NoOpLogger } from './utils/noop-logger';
 import { createDefaultMessageEvents, type MessageHandler, type MessageEventMap } from './events/messageEvent';
 
 export { STT } from './core/stt';
@@ -23,7 +21,6 @@ export type {
   STTArray,
   IWebSocket,
   IClient,
-  ILogger,
   ClientOptions,
   ClientEventName,
   ClientEventHandler,
@@ -57,9 +54,7 @@ export class Client implements IClient {
 
   private _ws: IWebSocket | null = null;
   private _heartbeatTask: ReturnType<typeof setInterval> | null = null;
-  private _debug: boolean;
   private _ignore: Set<MessageEventType>;
-  private _logger: ILogger;
   private _wsFactory: WebSocketFactory;
   private _clientEvents: Record<ClientEventName, ClientEventHandler>;
   private _messageEvents: MessageEventMap;
@@ -68,12 +63,9 @@ export class Client implements IClient {
     roomId: string | number,
     opts: ClientOptions = {},
     wsFactory?: WebSocketFactory,
-    logger?: ILogger,
   ) {
     this.roomId = roomId;
-    this._debug = opts.debug ?? false;
     this._ignore = new Set(opts.ignore ?? []);
-    this._logger = logger ?? new NoOpLogger();
     this._wsFactory = wsFactory ?? defaultWsFactory;
     this._clientEvents = {
       connect: (_client) => {
@@ -141,6 +133,14 @@ export class Client implements IClient {
     this._ws.send(Packet.encode(STT.serialize(message)));
   }
 
+  close(): void {
+    this._logout();
+    if (this._ws) {
+      this._ws.close();
+      this._ws = null;
+    }
+  }
+
   private _login(): void {
     this.send({ type: 'loginreq', roomid: String(this.roomId) });
   }
@@ -155,14 +155,6 @@ export class Client implements IClient {
     }, HEARTBEAT_INTERVAL * 1000);
   }
 
-  close(): void {
-    this._logout();
-    if (this._ws) {
-      this._ws.close();
-      this._ws = null;
-    }
-  }
-
   private _logout(): void {
     if (this._ws) {
       this.send({ type: 'logout' });
@@ -174,15 +166,10 @@ export class Client implements IClient {
   }
 
   private _messageHandle(data: unknown): void {
-    // Packet.decode accepts any buffer-like (ArrayBuffer, Buffer, Uint8Array)
     const buf = data as ArrayBuffer;
 
     Packet.decode(buf, (raw) => {
       const r = STT.deserialize(raw) as STTObject;
-
-      if (this._debug) {
-        this._logger.write(String(r.type), raw);
-      }
 
       const type = String(r.type) as MessageEventType;
       if (!this._ignore.has(type)) {
