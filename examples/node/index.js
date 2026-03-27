@@ -1,6 +1,6 @@
 const { Client } = require('douyudm')
 
-const client = new Client(102965)
+const client = new Client(9999)
 
 client.on('connect', (client) => console.log(`[connect] 已连接到房间 ${client.roomId}`))
 client.on('disconnect', (client) => console.log(`[disconnect] 已断开房间 ${client.roomId}`))
