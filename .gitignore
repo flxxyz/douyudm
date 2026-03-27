@@ -1,2 +1,7 @@
 /node_modules
 *.log
+dist/
+coverage/
+*.json
+!package.json
+!tsconfig*.json
