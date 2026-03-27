@@ -19,7 +19,7 @@
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
   <script type="text/babel">
-    const { useState, useRef } = React
+    const { useState, useRef, useCallback } = React
 
     const FILTER_OPTIONS = [
       { value: 'mrkl',   label: '心跳 (mrkl)' },
@@ -36,6 +36,7 @@
       const [status, setStatus] = useState('disconnected')
       const [messages, setMessages] = useState([])
       const [ignored, setIgnored] = useState(new Set(['mrkl', 'uenter', 'upgrade', 'rankup', 'ranklist']))
+      const [filterOpen, setFilterOpen] = useState(false)
       const clientRef = useRef(null)
 
       const toggleIgnore = (value) => {
@@ -110,19 +111,29 @@
             }
           </div>
 
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px 16px', marginBottom: 10 }}>
-            {FILTER_OPTIONS.map(opt => (
-              <label key={opt.value} style={{ fontSize: 13, color: '#555', cursor: isDisconnected ? 'pointer' : 'not-allowed', opacity: isDisconnected ? 1 : 0.5 }}>
-                <input
-                  type="checkbox"
-                  checked={ignored.has(opt.value)}
-                  disabled={!isDisconnected}
-                  onChange={() => toggleIgnore(opt.value)}
-                  style={{ marginRight: 4 }}
-                />
-                屏蔽 {opt.label}
-              </label>
-            ))}
+          <div style={{ marginBottom: 10 }}>
+            <button
+              onClick={() => setFilterOpen(v => !v)}
+              disabled={!isDisconnected}
+              style={{ fontSize: 13, color: '#555', background: 'none', border: '1px solid #ddd', borderRadius: 4, padding: '3px 10px', cursor: isDisconnected ? 'pointer' : 'not-allowed' }}
+            >
+              {filterOpen ? '▲' : '▼'} 消息过滤 {ignored.size > 0 ? `(已屏蔽 ${ignored.size} 项)` : ''}
+            </button>
+            {filterOpen && (
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px 16px', marginTop: 8, padding: '8px 12px', border: '1px solid #ddd', borderRadius: 4 }}>
+                {FILTER_OPTIONS.map(opt => (
+                  <label key={opt.value} style={{ fontSize: 13, color: '#555', cursor: 'pointer' }}>
+                    <input
+                      type="checkbox"
+                      checked={ignored.has(opt.value)}
+                      onChange={() => toggleIgnore(opt.value)}
+                      style={{ marginRight: 4 }}
+                    />
+                    {opt.label}
+                  </label>
+                ))}
+              </div>
+            )}
           </div>
 
           <div style={{ fontSize: 13, color: statusColor[status], marginBottom: 12 }}>
