@@ -5,37 +5,95 @@
   <title>斗鱼弹幕</title>
   <style>
     body { font-family: sans-serif; max-width: 600px; margin: 40px auto; }
+    #controls { display: flex; gap: 8px; margin-bottom: 16px; }
+    #roomId { flex: 1; padding: 6px 10px; font-size: 14px; border: 1px solid #ccc; border-radius: 4px; }
+    button { padding: 6px 16px; font-size: 14px; cursor: pointer; border: none; border-radius: 4px; }
+    #btnConnect { background: #f60; color: #fff; }
+    #btnDisconnect { background: #eee; color: #333; display: none; }
+    #status { font-size: 13px; color: #888; margin-bottom: 12px; }
     #danmu { list-style: none; padding: 0; }
-    #danmu li { padding: 4px 0; border-bottom: 1px solid #eee; }
+    #danmu li { padding: 4px 0; border-bottom: 1px solid #eee; font-size: 14px; }
     .level { color: #888; font-size: 12px; }
     .name { color: #f60; font-weight: bold; }
   </style>
 </head>
 <body>
-  <h2>房间 102965 弹幕</h2>
+  <h2>斗鱼弹幕</h2>
+
+  <div id="controls">
+    <input id="roomId" type="number" placeholder="输入房间号" value="102965" />
+    <button id="btnConnect">连接</button>
+    <button id="btnDisconnect">断开</button>
+  </div>
+
+  <div id="status">未连接</div>
   <ul id="danmu"></ul>
 
   <script src="https://unpkg.com/douyudm/dist/douyudm.browser.min.js"></script>
   <script>
     const list = document.getElementById('danmu')
+    const status = document.getElementById('status')
+    const btnConnect = document.getElementById('btnConnect')
+    const btnDisconnect = document.getElementById('btnDisconnect')
+    const roomIdInput = document.getElementById('roomId')
 
-    const client = new douyudm.Client(102965, { ignore: ['mrkl'] })
+    let client = null
 
-    client.on('connect', (c) => console.log(`已连接到房间 ${c.roomId}`))
-    client.on('disconnect', (c) => console.log(`已断开房间 ${c.roomId}`))
-    client.on('error', (c, err) => console.error(`连接错误`, err))
+    btnConnect.addEventListener('click', () => {
+      const roomId = roomIdInput.value.trim()
+      if (!roomId) return
 
-    client.on('chatmsg', (res) => {
-      const li = document.createElement('li')
-      li.innerHTML = `<span class="level">lv.${res.level}</span> <span class="name">${res.nn}</span>: ${res.txt}`
-      list.prepend(li)
+      if (client) return
+
+      list.innerHTML = ''
+      status.textContent = '连接中...'
+
+      client = new douyudm.Client(roomId, { ignore: ['mrkl'] })
+
+      client.on('connect', (c) => {
+        status.textContent = `已连接到房间 ${c.roomId}`
+        btnConnect.style.display = 'none'
+        btnDisconnect.style.display = ''
+        roomIdInput.disabled = true
+      })
+
+      client.on('disconnect', () => {
+        status.textContent = '已断开'
+        btnConnect.style.display = ''
+        btnDisconnect.style.display = 'none'
+        roomIdInput.disabled = false
+        client = null
+      })
+
+      client.on('error', (c, err) => {
+        status.textContent = `连接错误: ${err.message}`
+        client = null
+      })
+
+      client.on('chatmsg', (res) => {
+        const li = document.createElement('li')
+        li.innerHTML = `<span class="level">lv.${res.level}</span> <span class="name">${res.nn}</span>: ${res.txt}`
+        list.prepend(li)
+      })
+
+      client.on('uenter', (res) => {
+        const li = document.createElement('li')
+        li.innerHTML = `<span class="name">${res.nn}</span> 进入了房间`
+        list.prepend(li)
+      })
+
+      client.run()
     })
 
-    client.on('uenter', (res) => {
-      console.log(`${res.nn} 进入了房间`)
+    btnDisconnect.addEventListener('click', () => {
+      if (client) {
+        client = null
+        status.textContent = '已断开'
+        btnConnect.style.display = ''
+        btnDisconnect.style.display = 'none'
+        roomIdInput.disabled = false
+      }
     })
-
-    client.run()
   </script>
 </body>
 </html>
