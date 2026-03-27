@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 import { program } from 'commander';
 import { Client } from '../index';
 import { NodeLogger } from './logger';
