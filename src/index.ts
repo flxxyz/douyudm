@@ -127,7 +127,12 @@ export class Client implements IClient {
     };
 
     this._ws.onmessage = (event) => {
-      this._messageHandle(event.data as ArrayBuffer);
+      const data = event.data;
+      if (data instanceof Blob) {
+        data.arrayBuffer().then((buf) => this._messageHandle(buf));
+      } else {
+        this._messageHandle(data as ArrayBuffer);
+      }
     };
   }
 
