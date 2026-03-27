@@ -32,13 +32,13 @@ pnpm add -g douyudm
 
 ```shell
 # 监听房间弹幕
-douyudm -i 102965
+douyudm -i 9999
 
-# 开启 debug 模式（消息写入 102965.json）
-douyudm -i 102965 --debug
+# 开启 debug 模式（消息写入 9999.json）
+douyudm -i 9999 --debug
 
 # 忽略指定事件
-douyudm -i 102965 --ignore mrkl,uenter
+douyudm -i 9999 --ignore mrkl,uenter
 
 # 查看所有选项
 douyudm --help
@@ -52,7 +52,7 @@ douyudm --help
 // CJS
 const { Client } = require('douyudm')
 
-const client = new Client(102965)
+const client = new Client(9999)
 
 client.on('connect', (client) => console.log(`[connect] roomId=${client.roomId}`))
 client.on('disconnect', (client) => console.log(`[disconnect] roomId=${client.roomId}`))
@@ -68,7 +68,7 @@ client.run()
 // ESM / TypeScript
 import { Client } from 'douyudm'
 
-const client = new Client(102965, { ignore: ['mrkl'] })
+const client = new Client(9999, { ignore: ['mrkl'] })
 client.on('chatmsg', (res) => console.log(`[${res.nn}] ${res.txt}`))
 client.run()
 ```
@@ -78,7 +78,7 @@ client.run()
 ```html
 <script src="https://unpkg.com/douyudm/dist/douyudm.browser.min.js"></script>
 <script>
-  const client = new douyudm.Client(102965)
+  const client = new douyudm.Client(9999)
   client.on('chatmsg', (res) => console.log(res.nn, res.txt))
   client.run()
 </script>
