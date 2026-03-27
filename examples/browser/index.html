@@ -80,7 +80,10 @@
       }
 
       const disconnect = () => {
-        clientRef.current = null
+        if (clientRef.current) {
+          clientRef.current.close()
+          clientRef.current = null
+        }
         setStatus('disconnected')
       }
 

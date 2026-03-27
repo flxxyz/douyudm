@@ -155,6 +155,14 @@ export class Client implements IClient {
     }, HEARTBEAT_INTERVAL * 1000);
   }
 
+  close(): void {
+    this._logout();
+    if (this._ws) {
+      this._ws.close();
+      this._ws = null;
+    }
+  }
+
   private _logout(): void {
     if (this._ws) {
       this.send({ type: 'logout' });
