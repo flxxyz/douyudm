@@ -103,6 +103,14 @@
           setMessages(prev => [...prev, { id: nextId(), type: 'enter', nn: res.nn }])
         })
 
+        client.on('dgb', (res) => {
+          setMessages(prev => [...prev, { id: nextId(), type: 'gift', nn: res.nn, gfn: res.gfn, gfcnt: res.gfcnt }])
+        })
+
+        client.on('spbc', (res) => {
+          setMessages(prev => [...prev, { id: nextId(), type: 'spbc', sn: res.sn, gn: res.gn, gc: res.gc }])
+        })
+
         client.run()
         clientRef.current = client
       }
@@ -181,6 +189,16 @@
                 {msg.type === 'enter' && <>
                   <span style={{ color: '#f60', fontWeight: 'bold' }}>{msg.nn}</span>
                   <span style={{ color: '#888' }}> 进入了房间</span>
+                </>}
+                {msg.type === 'gift' && <>
+                  <span style={{ color: '#f60', fontWeight: 'bold' }}>{msg.nn}</span>
+                  <span style={{ color: '#888' }}> 赠送了 </span>
+                  <span style={{ color: '#c60' }}>{msg.gfn} x{msg.gfcnt}</span>
+                </>}
+                {msg.type === 'spbc' && <>
+                  <span style={{ color: '#f60', fontWeight: 'bold' }}>{msg.sn}</span>
+                  <span style={{ color: '#888' }}> 广播礼物 </span>
+                  <span style={{ color: '#c60' }}>{msg.gn} x{msg.gc}</span>
                 </>}
                 {msg.type === 'error' && <span style={{ color: 'red' }}>错误: {msg.text}</span>}
               </li>
