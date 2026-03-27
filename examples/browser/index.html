@@ -73,6 +73,9 @@
         })
       }
 
+      const ignoredRef = useRef(ignored)
+      ignoredRef.current = ignored
+
       const connectRef = useRef(null)
       connectRef.current = () => {
         if (!roomId.trim() || clientRef.current) return
@@ -80,7 +83,7 @@
         setStatus('connecting')
         setMessages([])
 
-        const client = new douyudm.Client(roomId, { ignore: [...ignored] })
+        const client = new douyudm.Client(roomId)
 
         client.on('connect', () => setStatus('connected'))
 
@@ -96,18 +99,22 @@
         })
 
         client.on('chatmsg', (res) => {
+          if (ignoredRef.current.has('chatmsg')) return
           setMessages(prev => [...prev, { id: nextId(), type: 'chat', nn: res.nn, level: res.level, txt: res.txt }])
         })
 
         client.on('uenter', (res) => {
+          if (ignoredRef.current.has('uenter')) return
           setMessages(prev => [...prev, { id: nextId(), type: 'enter', nn: res.nn }])
         })
 
         client.on('dgb', (res) => {
+          if (ignoredRef.current.has('dgb')) return
           setMessages(prev => [...prev, { id: nextId(), type: 'gift', nn: res.nn, gfn: res.gfn, gfcnt: res.gfcnt }])
         })
 
         client.on('spbc', (res) => {
+          if (ignoredRef.current.has('spbc')) return
           setMessages(prev => [...prev, { id: nextId(), type: 'spbc', sn: res.sn, gn: res.gn, gc: res.gc }])
         })
 
@@ -157,7 +164,6 @@
             </button>
             {filterOpen && (
               <div style={{ marginTop: 8, padding: '8px 12px', border: '1px solid #ddd', borderRadius: 4 }}>
-                {!isDisconnected && <div style={{ fontSize: 12, color: '#fa0', marginBottom: 6 }}>修改将在下次连接时生效</div>}
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px 16px' }}>
                 {FILTER_OPTIONS.map(opt => (
                   <label key={opt.value} style={{ fontSize: 13, color: '#555', cursor: 'pointer' }}>
