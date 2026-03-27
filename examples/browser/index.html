@@ -19,13 +19,32 @@
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
   <script type="text/babel">
-    const { useState, useEffect, useRef } = React
+    const { useState, useRef } = React
+
+    const FILTER_OPTIONS = [
+      { value: 'mrkl',   label: '心跳 (mrkl)' },
+      { value: 'uenter', label: '进入房间 (uenter)' },
+      { value: 'upgrade', label: '等级提升 (upgrade)' },
+      { value: 'rankup', label: 'Top10变化 (rankup)' },
+      { value: 'ranklist', label: '排行榜 (ranklist)' },
+      { value: 'spbc',   label: '礼物广播 (spbc)' },
+      { value: 'dgb',    label: '赠送礼物 (dgb)' },
+    ]
 
     function App() {
       const [roomId, setRoomId] = useState('102965')
-      const [status, setStatus] = useState('disconnected') // disconnected | connecting | connected
+      const [status, setStatus] = useState('disconnected')
       const [messages, setMessages] = useState([])
+      const [ignored, setIgnored] = useState(new Set(['mrkl', 'uenter', 'upgrade', 'rankup', 'ranklist']))
       const clientRef = useRef(null)
+
+      const toggleIgnore = (value) => {
+        setIgnored(prev => {
+          const next = new Set(prev)
+          next.has(value) ? next.delete(value) : next.add(value)
+          return next
+        })
+      }
 
       const connect = () => {
         if (!roomId.trim() || clientRef.current) return
@@ -33,7 +52,7 @@
         setStatus('connecting')
         setMessages([])
 
-        const client = new douyudm.Client(roomId, { ignore: ['mrkl'] })
+        const client = new douyudm.Client(roomId, { ignore: [...ignored] })
 
         client.on('connect', () => setStatus('connected'))
 
@@ -65,6 +84,7 @@
         setStatus('disconnected')
       }
 
+      const isDisconnected = status === 'disconnected'
       const statusText = { disconnected: '未连接', connecting: '连接中...', connected: `已连接到房间 ${roomId}` }
       const statusColor = { disconnected: '#888', connecting: '#fa0', connected: '#0a0' }
 
@@ -78,13 +98,28 @@
               value={roomId}
               onChange={e => setRoomId(e.target.value)}
               placeholder="输入房间号"
-              disabled={status !== 'disconnected'}
+              disabled={!isDisconnected}
               style={{ flex: 1, padding: '6px 10px', fontSize: 14, border: '1px solid #ccc', borderRadius: 4 }}
             />
-            {status === 'disconnected'
+            {isDisconnected
               ? <button onClick={connect} style={{ padding: '6px 16px', background: '#f60', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer' }}>连接</button>
               : <button onClick={disconnect} style={{ padding: '6px 16px', background: '#eee', color: '#333', border: 'none', borderRadius: 4, cursor: 'pointer' }}>断开</button>
             }
+          </div>
+
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px 16px', marginBottom: 10 }}>
+            {FILTER_OPTIONS.map(opt => (
+              <label key={opt.value} style={{ fontSize: 13, color: '#555', cursor: isDisconnected ? 'pointer' : 'not-allowed', opacity: isDisconnected ? 1 : 0.5 }}>
+                <input
+                  type="checkbox"
+                  checked={ignored.has(opt.value)}
+                  disabled={!isDisconnected}
+                  onChange={() => toggleIgnore(opt.value)}
+                  style={{ marginRight: 4 }}
+                />
+                屏蔽 {opt.label}
+              </label>
+            ))}
           </div>
 
           <div style={{ fontSize: 13, color: statusColor[status], marginBottom: 12 }}>
