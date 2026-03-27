@@ -1,148 +1,191 @@
 # douyudm
 
-基于websocket实时获取斗鱼弹幕
+基于 WebSocket 实时获取斗鱼弹幕，支持 Node.js 与浏览器。
 
 <a href="https://npmcharts.com/compare/douyudm?minimal=true"><img src="https://img.shields.io/npm/dm/douyudm.svg?sanitize=true" alt="Downloads" /></a>
 <a href="https://www.npmjs.com/package/douyudm"><img src="https://img.shields.io/npm/v/douyudm.svg?sanitize=true" alt="Version" /></a>
 <a href="https://www.npmjs.com/package/douyudm"><img src="https://img.shields.io/npm/l/douyudm.svg?sanitize=true" alt="License" /></a>
 
-> \>= 2.0.0 不再支持**WEB**引用
+## 安装
 
-## 安装(命令行)
-
-```shell
-npm i -g douyudm
-or
-yarn global add douyudm
-```
-
-## 使用(命令行)
-
-通过命令行监听，默认显示，`--debug`开启输出到文件，默认保存当前运行目录
+**作为库使用**
 
 ```shell
-douyudm -i 房间号
-```
-
-更多命令查看 `douyudm --help`
-
-## 安装(API)
-
-```shell
+# npm
 npm i douyudm
-or
-yarn add douyudm
+
+# pnpm
+pnpm add douyudm
 ```
 
-## 使用(API)
+**全局 CLI 工具**
 
-通过库调用自行封装
+```shell
+# npm
+npm i -g douyudm
+
+# pnpm
+pnpm add -g douyudm
+```
+
+## CLI 使用
+
+```shell
+# 监听房间弹幕
+douyudm -i 102965
+
+# 开启 debug 模式（消息写入 102965.json）
+douyudm -i 102965 --debug
+
+# 忽略指定事件
+douyudm -i 102965 --ignore mrkl,uenter
+
+# 查看所有选项
+douyudm --help
+```
+
+## API 使用
+
+### Node.js
 
 ```javascript
-//引入类库
-const douyu = require('douyudm')
+// CJS
+const { Client } = require('douyudm')
 
-//设置房间号，初始化
-const roomId = 102965
-const opts = {
-    debug: true,  // 默认关闭 false
-}
-const room = new douyu(roomId, opts)
+const client = new Client(102965)
 
-//系统事件
-room.on('connect', function () {
-    console.log('[connect] roomId=%s', this.roomId)
-})
-room.on('disconnect', function () {
-    console.log('[disconnect] roomId=%s', this.roomId)
-})
-room.on('error', function(err) {
-    console.log('[error] roomId=%s', this.roomId)
-})
+client.on('connect', (client) => console.log(`[connect] roomId=${client.roomId}`))
+client.on('disconnect', (client) => console.log(`[disconnect] roomId=${client.roomId}`))
+client.on('error', (client, err) => console.error(`[error] roomId=${client.roomId}`, err))
 
-//消息事件
-room.on('chatmsg', function(res) {
-    console.log('[chatmsg]', `<lv ${res.level}> [${res.nn}] ${res.txt}`)
-})
-room.on('loginres', function(res) {
-    console.log('[loginres]', '登录成功')
-})
-room.on('uenter', function(res) {
-    console.log('[uenter]', `${res.nn}进入房间`)
-})
+client.on('chatmsg', (res) => console.log(`<lv ${res.level}> [${res.nn}] ${res.txt}`))
+client.on('uenter', (res) => console.log(`${res.nn} 进入房间`))
 
-//开始监听
-room.run()
+client.run()
 ```
+
+```typescript
+// ESM / TypeScript
+import { Client } from 'douyudm'
+
+const client = new Client(102965, { ignore: ['mrkl'] })
+client.on('chatmsg', (res) => console.log(`[${res.nn}] ${res.txt}`))
+client.run()
+```
+
+### 浏览器
+
+```html
+<script src="https://unpkg.com/douyudm/dist/douyudm.browser.min.js"></script>
+<script>
+  const client = new douyudm.Client(102965)
+  client.on('chatmsg', (res) => console.log(res.nn, res.txt))
+  client.run()
+</script>
+```
+
+## 选项
+
+```typescript
+new Client(roomId, opts?)
+```
+
+| 参数 | 类型 | 默认值 | 说明 |
+|------|------|--------|------|
+| `roomId` | `string \| number` | — | 房间号 |
+| `opts.debug` | `boolean` | `false` | 开启后将所有消息写入 `<roomId>.json` |
+| `opts.ignore` | `string[]` | `[]` | 忽略的消息事件列表 |
 
 ## 事件列表
 
-|  系统事件  |   描述   |
-|:----------:|:--------:|
-|  connect   |   连接   |
-| disconnect |   断开   |
-|   error    | 错误监听 |
+### 系统事件
 
-- - -
+回调签名：`(client: Client, err?: Error) => void`
 
-|       消息事件        |          描述          |
-|:---------------------:|:----------------------:|
-|       loginres        |          登入          |
-|        pingreq        | 跟随 **loginres** 一起 |
-|        chatmsg        |        弹幕消息        |
-|        uenter         |        进入房间        |
-|        upgrade        |      用户等级提升      |
-|          rss          |      房间开播提醒      |
-|    bc_buy_deserve     |      赠送酬勤通知      |
-|          ssd          |        超级弹幕        |
-|         spbc          |     房间内礼物广播     |
-|          dgb          |        赠送礼物        |
-|      onlinegift       |      领取在线鱼丸      |
-|         ggbb          |     房间用户抢红包     |
-|        rankup         |  房间内top10变化消息   |
-|       ranklist        |     广播排行榜消息     |
-|         mrkl          |          心跳          |
-|       erquizisn       |        鱼丸预言        |
-|         blab          |      粉丝等级升级      |
-|          rri          |     未知的消息事件     |
-|        synexp         |     未知的消息事件     |
-|    noble_num_info     |     未知的消息事件     |
-|      gbroadcast       |     未知的消息事件     |
-|      qausrespond      |     未知的消息事件     |
-|         wiru          |     未知的消息事件     |
-|         wirt          |     未知的消息事件     |
-|      mcspeacsite      |     未知的消息事件     |
-|      rank_change      |     未知的消息事件     |
-|         srres         |     未知的消息事件     |
-|         anbc          |     未知的消息事件     |
-|         frank         |     未知的消息事件     |
-|        rnewbc         |     未知的消息事件     |
-|       nlkstatus       |     未知的消息事件     |
-|    pandoraboxinfo     |     未知的消息事件     |
-|     ro_game_succ      |     未知的消息事件     |
-| lucky_wheel_star_pool |     未知的消息事件     |
-|         tsgs          |     未知的消息事件     |
-|        fswrank        |     未知的消息事件     |
-|        tsboxb         |     未知的消息事件     |
-|         cthn          |     未知的消息事件     |
-|     configscreen      | 估计是全屏广播显示礼物 |
-|        rnewbc         |     未知的消息事件     |
-
-## 斗鱼STT序列化反序列化库
-
-STT序列化规定如下:
-
-> 1. 键key和值value直接采用`@=`分割
-> 2. 数组采用`/`分割
-> 3. 如果key或者value中含有字符`/`， 则使用`@S`转义
-> 4. 如果key或者value中含有字符`@`， 则使用`@A`转义
-
-### 序列化测试
+| 事件 | 描述 |
+|:----:|:----:|
+| `connect` | 连接成功 |
+| `disconnect` | 连接断开 |
+| `error` | 连接错误 |
 
 ```javascript
-npm run test:stt
-or
-yarn test:stt
+client.on('connect', (client) => console.log(`[connect] roomId=${client.roomId}`))
+client.on('error', (client, err) => console.error(`[error] roomId=${client.roomId}`, err))
+```
+
+### 消息事件
+
+回调签名：`(res: STTObject, client?: Client) => void`
+
+第二个参数 `client` 为可选，需要访问实例时才传入。
+
+| 事件 | 描述 |
+|:----:|:----:|
+| `loginres` | 登录响应 |
+| `chatmsg` | 弹幕消息 |
+| `uenter` | 用户进入房间 |
+| `upgrade` | 用户等级提升 |
+| `rss` | 房间开播/关播提醒 |
+| `bc_buy_deserve` | 赠送酬勤通知 |
+| `ssd` | 超级弹幕 |
+| `spbc` | 房间内礼物广播 |
+| `dgb` | 赠送礼物 |
+| `onlinegift` | 领取在线鱼丸 |
+| `ggbb` | 房间用户抢红包 |
+| `rankup` | 房间 Top10 变化 |
+| `ranklist` | 广播排行榜 |
+| `mrkl` | 心跳 |
+| `blab` | 粉丝等级升级 |
+| `frank` | 粉丝排行榜变化 |
+| `anbc` | 全站礼物广播 |
+| `cthn` | 跨房间弹幕 |
+| `configscreen` | 全屏广播 |
+| `nlkstatus` | 大乱斗状态 |
+| `tsgs` | 宝箱礼物 |
+| `tsboxb` | 宝箱广播 |
+| `ro_game_succ` | 游戏成功 |
+| `pandoraboxinfo` | 潘多拉盒子 |
+| `lucky_wheel_star_pool` | 幸运转盘 |
+| `noble_num_info` | 贵族数量 |
+| `synexp` | 经验同步 |
+| `wirt` | 直播间互动 |
+| `rnewbc` | 新广播 |
+
+```javascript
+// 只用消息数据
+client.on('chatmsg', (res) => console.log(`[${res.nn}] ${res.txt}`))
+
+// 同时访问 Client 实例
+client.on('chatmsg', (res, client) => console.log(`roomId=${client.roomId} [${res.nn}] ${res.txt}`))
+```
+
+## STT 协议
+
+斗鱼自定义序列化格式，规则如下：
+
+- 键值对使用 `@=` 分隔：`key@=value`
+- 字段使用 `/` 分隔
+- `@` 转义为 `@A`，`/` 转义为 `@S`
+
+```typescript
+import { STT } from 'douyudm'
+
+// 序列化
+STT.serialize({ type: 'mrkl' })  // => 'type@=mrkl/'
+
+// 反序列化
+STT.deserialize('type@=chatmsg/nn@=用户/txt@=hello/')
+// => { type: 'chatmsg', nn: '用户', txt: 'hello' }
+```
+
+## 开发
+
+```shell
+# 构建
+npm run build
+
+# 测试（含覆盖率）
+npm run test:coverage
 ```
 
 ## 后话
@@ -153,6 +196,8 @@ yarn test:stt
 
 通过webpack打包混淆代码乍一眼看去很混乱，其实仔细观察还是有规律寻找的。
 
-文档中编码的几个固定参数均为数字，在webpack中数字的混淆我还没见过，按这个思路精准的找到这段代码。经过我十几分钟的理解，提取出 [**bufferCoder.js**](test/old/bufferCoder.js)
+文档中编码的几个固定参数均为数字，在webpack中数字的混淆我还没见过，按这个思路精准的找到这段代码。经过我十几分钟的理解，提取出二进制编解码逻辑，斗鱼自有的序列化、反序列化方法可以查看 [STT 协议](#stt-协议) 章节。
 
-斗鱼自有的序列化，反序列化方法可以查看 [**stt.js**](src/stt.js)
+## License
+
+MIT

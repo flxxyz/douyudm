@@ -1,7 +1,7 @@
-import type { STTObject, MessageEventType } from '../types';
+import type { STTObject, IClient, MessageEventType } from '../types';
 import { MSG_LIVE_ON, MSG_LIVE_OFF } from '../core/config';
 
-export type MessageHandler = (r: STTObject) => void;
+export type MessageHandler = (r: STTObject, client?: IClient) => void;
 export type MessageEventMap = Partial<Record<MessageEventType, MessageHandler>>;
 
 export function createDefaultMessageEvents(): MessageEventMap {

@@ -1,8 +1,10 @@
 import type {
   IWebSocket,
   ILogger,
+  IClient,
   ClientOptions,
   ClientEventName,
+  ClientEventHandler,
   MessageEventType,
   STTObject,
   WebSocketFactory,
@@ -20,17 +22,17 @@ export type {
   STTObject,
   STTArray,
   IWebSocket,
+  IClient,
   ILogger,
   ClientOptions,
   ClientEventName,
+  ClientEventHandler,
   MessageEventType,
   WebSocketFactory,
   ChatMsg,
   LoginRes,
   UEnter,
 } from './types';
-
-type ClientEventHandler = (this: Client, err?: Error) => void;
 
 function defaultWsFactory(url: string): IWebSocket {
   // Browser: native WebSocket
@@ -49,7 +51,7 @@ function randomPort(): number {
   return DANMU_PORTS[Math.floor(Math.random() * DANMU_PORTS.length)];
 }
 
-export class Client {
+export class Client implements IClient {
   readonly roomId: string | number;
 
   private _ws: IWebSocket | null = null;
@@ -73,15 +75,15 @@ export class Client {
     this._logger = logger ?? new NoOpLogger();
     this._wsFactory = wsFactory ?? defaultWsFactory;
     this._clientEvents = {
-      connect: function (this: Client) {
+      connect: (_client) => {
         this._login();
         this._joinGroup();
         this._heartbeat();
       },
-      disconnect: function (this: Client) {
+      disconnect: (_client) => {
         this._logout();
       },
-      error: function (this: Client, err?: Error) {
+      error: (_client, err) => {
         console.error(err);
       },
     };
@@ -94,14 +96,14 @@ export class Client {
     if (event === 'connect' || event === 'disconnect' || event === 'error') {
       const prev = this._clientEvents[event as ClientEventName];
       const next = cb as ClientEventHandler;
-      this._clientEvents[event as ClientEventName] = function (this: Client, err?: Error) {
+      this._clientEvents[event as ClientEventName] = (client, err) => {
         if (event === 'connect' || event === 'disconnect') {
-          prev.call(this, err);
+          prev(client, err);
         }
-        next.call(this, err);
+        next(client, err);
       };
     } else {
-      this._messageEvents[event as MessageEventType] = (cb as MessageHandler).bind(this);
+      this._messageEvents[event as MessageEventType] = cb as MessageHandler;
     }
     return this;
   }
@@ -112,15 +114,15 @@ export class Client {
     this._ws = this._wsFactory(wsUrl);
 
     this._ws.onopen = () => {
-      this._clientEvents.connect.call(this);
+      this._clientEvents.connect(this);
     };
 
     this._ws.onerror = (event) => {
-      this._clientEvents.error.call(this, event instanceof Error ? event : new Error(String(event)));
+      this._clientEvents.error(this, event instanceof Error ? event : new Error(String(event)));
     };
 
     this._ws.onclose = () => {
-      this._clientEvents.disconnect.call(this);
+      this._clientEvents.disconnect(this);
     };
 
     this._ws.onmessage = (event) => {
@@ -171,7 +173,7 @@ export class Client {
       const type = String(r.type) as MessageEventType;
       if (!this._ignore.has(type)) {
         const handler = this._messageEvents[type];
-        if (handler) handler(r);
+        if (handler) handler(r, this);
       }
     });
   }

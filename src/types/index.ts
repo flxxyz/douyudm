@@ -22,6 +22,13 @@ export type MessageEventType =
 
 export type ClientEventName = 'connect' | 'disconnect' | 'error';
 
+export interface IClient {
+  readonly roomId: string | number;
+  send(message: STTObject): void;
+}
+
+export type ClientEventHandler = (client: IClient, err?: Error) => void;
+
 // ─── Client Options ───────────────────────────────────────────────────────────
 
 export interface ClientOptions {
