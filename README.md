@@ -242,7 +242,22 @@ npm run build
 
 # 测试（含覆盖率）
 npm run test:coverage
+
+# 构建后验证 CJS、原生 ESM、CLI 和 TypeScript 包入口（使用本地 WebSocket 服务）
+npm run test:entrypoints
+
+# 真实浏览器端到端测试（需公网及正在产生弹幕的真实 rid）
+pnpm exec playwright install chromium
+DOUYUDM_TEST_ROOM=138243 npm run test:browser
+# 已安装系统 Chromium 时可省略下载，设置 CHROMIUM_PATH=/usr/bin/chromium
 ```
+
+浏览器测试使用当前分支构建替换示例页中的 douyudm CDN 脚本，其他 CDN 资源仍正常加载并校验完整性。
+它验证真实 WebSocket 弹幕、IndexedDB 录制、刷新保留、JSONL 下载、ASS 转换、历史删除，
+以及环境允许时直接打开 HTML 文件的页面加载和转换（管理员策略禁止 `file://` 时单独报告跳过）。
+该测试需要先安装 Chromium；
+`DOUYUDM_TEST_ROOM` 应为当前活跃房间的真实 rid，房间无弹幕时会报告超时，不算通过。
+Playwright 仅用于开发测试，不增加运行时依赖。
 
 ## 后话
 
