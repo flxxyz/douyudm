@@ -33,28 +33,14 @@ test.each([0, -1, NaN, Infinity, '6657/other', 'https://evil.test', '1.5', 90071
   expect(fetchMock).not.toHaveBeenCalled();
 });
 
-test('成功查询缓存十分钟，同一个数字/字符串房间号复用', async () => {
-  jest.useFakeTimers();
+test('每次连接查询一次真实 rid，不缓存跨连接映射', async () => {
   expect(await room.resolveRoomId(6657)).toBe('6979222');
   expect(await room.resolveRoomId('6657')).toBe('6979222');
-  expect(fetchMock).toHaveBeenCalledTimes(1);
-  expect(fetchMock.mock.calls[0][0]).toBe('https://m.douyu.com/6657');
-  jest.advanceTimersByTime(600_000);
-  await room.resolveRoomId(6657);
   expect(fetchMock).toHaveBeenCalledTimes(2);
+  expect(fetchMock.mock.calls[0][0]).toBe('https://m.douyu.com/6657');
 });
 
-test('缓存有容量上限且命中会刷新最近使用顺序', async () => {
-  for (let id = 1; id <= 256; id++) await room.resolveRoomId(id);
-  await room.resolveRoomId(1);
-  await room.resolveRoomId(257);
-  await room.resolveRoomId(1);
-  expect(fetchMock).toHaveBeenCalledTimes(257);
-  await room.resolveRoomId(2);
-  expect(fetchMock).toHaveBeenCalledTimes(258);
-});
-
-test('HTTP 错误和无效结果不缓存，修复后可重试', async () => {
+test('HTTP 错误和无效结果报告失败，修复后可重试', async () => {
   fetchMock.mockResolvedValueOnce({ ok: false, status: 503 });
   await expect(room.resolveRoomId(6657)).rejects.toThrow('HTTP 503');
   fetchMock.mockResolvedValueOnce({ ok: true, text: async () => '<html>not found</html>' });
@@ -63,7 +49,7 @@ test('HTTP 错误和无效结果不缓存，修复后可重试', async () => {
   expect(fetchMock).toHaveBeenCalledTimes(3);
 });
 
-test('调用者中止会传递给 fetch，取消结果不缓存', async () => {
+test('调用者中止会传递给 fetch，后续仍可重新查询', async () => {
   const controller = new AbortController();
   fetchMock.mockImplementationOnce((_url, { signal }) => new Promise((_resolve, reject) => {
     signal.addEventListener('abort', () => reject(new Error('aborted')));
@@ -74,7 +60,7 @@ test('调用者中止会传递给 fetch，取消结果不缓存', async () => {
   await expect(room.resolveRoomId(6657)).resolves.toBe('6979222');
 });
 
-test('中止的 signal 不读取缓存也不发送请求', async () => {
+test('中止的 signal 不发送请求', async () => {
   const controller = new AbortController();
   controller.abort();
   await expect(room.resolveRoomId(6657, controller.signal)).rejects.toThrow('aborted');

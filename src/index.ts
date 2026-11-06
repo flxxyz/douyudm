@@ -7,17 +7,15 @@ import type {
   MessageEventType,
   STTObject,
   WebSocketFactory,
-  RoomIdResolver,
 } from './types';
 import { STT } from './core/stt';
 import { Packet } from './core/packet';
 import { HEARTBEAT_INTERVAL } from './core/config';
-import { normalizeRoomId, resolveRoomId } from './core/room';
+import { resolveRoomId } from './core/room';
 import { createDefaultMessageEvents, type MessageHandler, type MessageEventMap } from './events/messageEvent';
 
 export { STT } from './core/stt';
 export { Packet } from './core/packet';
-export { resolveRoomId } from './core/room';
 export * from './core/danmaku';
 export type {
   STTValue,
@@ -30,7 +28,6 @@ export type {
   ClientEventHandler,
   MessageEventType,
   WebSocketFactory,
-  RoomIdResolver,
   ChatMsg,
   LoginRes,
   UEnter,
@@ -84,7 +81,7 @@ function toError(event: unknown): Error {
 }
 
 export class Client implements IClient {
-  readonly requestedRoomId: string | number;
+  private readonly _requestedRoomId: string | number;
   private _roomId: string | number;
   /** 解析成功后为真实 rid；解析前为传入的房间号。 */
   get roomId(): string | number { return this._roomId; }
@@ -103,7 +100,6 @@ export class Client implements IClient {
   private _lastPort = 0;
   private _customUrl?: string;
   private _resolveRoomId?: boolean;
-  private _roomIdResolver: RoomIdResolver;
   private _resolveController: AbortController | null = null;
   private _runId = 0;
 
@@ -112,10 +108,8 @@ export class Client implements IClient {
     opts: ClientOptions = {},
     wsFactory?: WebSocketFactory,
   ) {
-    this.requestedRoomId = this._roomId = roomId;
+    this._requestedRoomId = this._roomId = roomId;
     this._resolveRoomId = opts.resolveRoomId;
-    this._roomIdResolver = opts.roomIdResolver ?? resolveRoomId;
-    if (opts.roomIdResolver && opts.resolveRoomId === undefined) this._resolveRoomId = true;
     this._ignore = new Set(opts.ignore ?? []);
     this._retries = opts.retries ?? 5;
     this._retryDelay = opts.retryDelay ?? 1000;
@@ -147,19 +141,15 @@ export class Client implements IClient {
     const shouldResolve = this._resolveRoomId ??
       (!url && typeof process !== 'undefined' && !!process.versions?.node);
     if (!shouldResolve) {
-      this._roomId = this.requestedRoomId;
+      this._roomId = this._requestedRoomId;
       this._connect();
       return;
     }
     const controller = new AbortController();
     this._resolveController = controller;
-    // Promise 链也捕获自定义解析器同步抛出的异常。
-    void Promise.resolve().then(() => {
+    void resolveRoomId(this._requestedRoomId, controller.signal).then((rid) => {
       if (runId !== this._runId) return;
-      return this._roomIdResolver(this.requestedRoomId, controller.signal);
-    }).then((rid) => {
-      if (runId !== this._runId) return;
-      this._roomId = normalizeRoomId(rid!);
+      this._roomId = rid;
       this._resolveController = null;
       this._connect();
     }).catch((error: unknown) => {

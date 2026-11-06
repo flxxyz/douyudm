@@ -2,6 +2,7 @@
  * Client 生命周期回归测试(2026-07 审查修复 1/2/5),使用 mock WebSocketFactory,无真实网络。
  */
 import { Client, Packet, STT } from '../src/index';
+import * as roomLookup from '../src/core/room';
 import type { ClientOptions, IWebSocket, STTObject } from '../src/types';
 
 class MockWS implements IWebSocket {
@@ -375,9 +376,11 @@ describe('连接失败自动换端口重试', () => {
 const flushResolution = async () => { for (let i = 0; i < 8; i++) await Promise.resolve(); };
 
 describe('连接前解析靓号', () => {
+  beforeEach(() => jest.spyOn(roomLookup, 'resolveRoomId').mockResolvedValue('6979222'));
+  afterEach(() => { jest.restoreAllMocks(); jest.useRealTimers(); });
   test('登录、入组和 connect 回调均使用真实 rid', async () => {
-    const resolver = jest.fn().mockResolvedValue('6979222');
-    const { client, sockets } = makeClient({ roomIdResolver: resolver, resolveRoomId: true });
+    const resolver = jest.mocked(roomLookup.resolveRoomId).mockResolvedValue('6979222');
+    const { client, sockets } = makeClient({ resolveRoomId: true });
     const connected = jest.fn();
     client.on('connect', connected);
     client.run();
@@ -391,19 +394,18 @@ describe('连接前解析靓号', () => {
       { type: 'joingroup', rid: '6979222', gid: '-9999' },
     ]);
     expect(client.roomId).toBe('6979222');
-    expect(client.requestedRoomId).toBe(9999);
     expect(connected.mock.calls[0][0].roomId).toBe('6979222');
     client.close();
   });
 
-  test('close 中止解析并忽略自定义解析器迟到的结果', async () => {
+  test('close 中止解析并忽略迟到的结果', async () => {
     let finish!: (rid: string) => void;
-    const resolver = jest.fn((_id, _signal) => new Promise<string>(resolve => { finish = resolve; }));
-    const { client, sockets } = makeClient({ roomIdResolver: resolver, resolveRoomId: true });
+    const resolver = jest.mocked(roomLookup.resolveRoomId).mockImplementation((_id, _signal) => new Promise<string>(resolve => { finish = resolve; }));
+    const { client, sockets } = makeClient({ resolveRoomId: true });
     client.run();
     await flushResolution();
     client.close();
-    expect(resolver.mock.calls[0][1].aborted).toBe(true);
+    expect(resolver.mock.calls[0][1]?.aborted).toBe(true);
     finish('6979222');
     await flushResolution();
     expect(sockets).toHaveLength(0);
@@ -411,9 +413,9 @@ describe('连接前解析靓号', () => {
 
   test('重复 run 关闭旧连接且旧解析结果不会覆盖新结果', async () => {
     let finish!: (rid: string) => void;
-    const resolver = jest.fn().mockImplementationOnce(() => new Promise<string>(r => { finish = r; }))
+    const resolver = jest.mocked(roomLookup.resolveRoomId).mockImplementationOnce(() => new Promise<string>(r => { finish = r; }))
       .mockResolvedValueOnce('6979222');
-    const { client, sockets } = makeClient({ roomIdResolver: resolver, resolveRoomId: true });
+    const { client, sockets } = makeClient({ resolveRoomId: true });
     client.run();
     await flushResolution();
     client.run();
@@ -428,9 +430,9 @@ describe('连接前解析靓号', () => {
     await flushResolution();
   });
 
-  test.each([() => Promise.reject(new Error('lookup failed')), () => { throw new Error('lookup failed'); },
-    () => Promise.resolve('not-a-rid')])('解析异常经 error 报告，不建立错误房间连接', async resolver => {
-    const { client, sockets } = makeClient({ roomIdResolver: resolver, resolveRoomId: true });
+  test('解析异常经 error 报告，不建立错误房间连接', async () => {
+    jest.mocked(roomLookup.resolveRoomId).mockRejectedValue(new Error('lookup failed'));
+    const { client, sockets } = makeClient({ resolveRoomId: true });
     const error = jest.fn();
     client.on('error', error);
     client.run();
@@ -442,9 +444,9 @@ describe('连接前解析靓号', () => {
 
   test('被新 run 取消的解析错误不向用户派发', async () => {
     let fail!: (error: Error) => void;
-    const resolver = jest.fn().mockImplementationOnce(() => new Promise((_r, reject) => { fail = reject; }))
+    const resolver = jest.mocked(roomLookup.resolveRoomId).mockImplementationOnce(() => new Promise((_r, reject) => { fail = reject; }))
       .mockResolvedValue('6979222');
-    const { client, sockets } = makeClient({ roomIdResolver: resolver, resolveRoomId: true });
+    const { client, sockets } = makeClient({ resolveRoomId: true });
     const error = jest.fn();
     client.on('error', error);
     client.run();
@@ -459,8 +461,8 @@ describe('连接前解析靓号', () => {
 
   test('端口重试复用解析结果', async () => {
     jest.useFakeTimers();
-    const resolver = jest.fn().mockResolvedValue('6979222');
-    const { client, sockets } = makeClient({ roomIdResolver: resolver, resolveRoomId: true });
+    const resolver = jest.mocked(roomLookup.resolveRoomId).mockResolvedValue('6979222');
+    const { client, sockets } = makeClient({ resolveRoomId: true });
     client.run();
     await flushResolution();
     sockets[0].onerror?.(new Error('rst'));
@@ -472,9 +474,9 @@ describe('连接前解析靓号', () => {
     jest.useRealTimers();
   });
 
-  test('显式关闭解析时不调用自定义解析器', () => {
-    const resolver = jest.fn();
-    const { client, sockets } = makeClient({ roomIdResolver: resolver, resolveRoomId: false });
+  test('显式关闭解析时不发起查询', () => {
+    const resolver = jest.mocked(roomLookup.resolveRoomId);
+    const { client, sockets } = makeClient({ resolveRoomId: false });
     client.run();
     expect(sockets).toHaveLength(1);
     expect(resolver).not.toHaveBeenCalled();
@@ -482,6 +484,7 @@ describe('连接前解析靓号', () => {
   });
 
   test('Node 默认解析，显式自定义 URL 默认不解析', async () => {
+    jest.mocked(roomLookup.resolveRoomId).mockRestore();
     const original = global.fetch;
     const fetchMock = jest.fn().mockResolvedValue({ ok: false, status: 503 });
     global.fetch = fetchMock;

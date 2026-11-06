@@ -20,21 +20,10 @@ export function roomIdFromHtml(html: string): string {
   throw new Error('Douyu page does not contain a real room ID');
 }
 
-const CACHE_TTL = 10 * 60 * 1000;
-const CACHE_LIMIT = 256;
-const cache = new Map<string, { rid: string; expiresAt: number }>();
-
-/** 从斗鱼移动页解析靓号；成功结果在进程内缓存 10 分钟，最多 256 项。 */
+/** 从斗鱼移动页解析靓号；一次查询只服务于当前连接流程。 */
 export async function resolveRoomId(roomId: string | number, signal?: AbortSignal): Promise<string> {
   const id = normalizeRoomId(roomId);
   if (signal?.aborted) throw new Error('Room lookup aborted');
-  const cached = cache.get(id);
-  if (cached && cached.expiresAt > Date.now()) {
-    cache.delete(id);
-    cache.set(id, cached);
-    return cached.rid;
-  }
-  cache.delete(id);
   const controller = new AbortController();
   const abort = () => controller.abort();
   signal?.addEventListener('abort', abort, { once: true });
@@ -45,9 +34,6 @@ export async function resolveRoomId(roomId: string | number, signal?: AbortSigna
     if (!response.ok) throw new Error(`Douyu room lookup returned HTTP ${response.status}`);
     const rid = roomIdFromHtml(await response.text());
     if (controller.signal.aborted) throw new Error('Room lookup aborted or timed out');
-    cache.delete(id);
-    cache.set(id, { rid, expiresAt: Date.now() + CACHE_TTL });
-    if (cache.size > CACHE_LIMIT) cache.delete(cache.keys().next().value!);
     return rid;
   } catch (error) {
     const detail = error instanceof Error ? error.message : String(error);
