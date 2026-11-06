@@ -32,12 +32,19 @@ export type ClientEventHandler = (client: IClient, err?: Error) => void;
 
 // ─── Client Options ───────────────────────────────────────────────────────────
 
+/** 将靓号解析为真实 rid；signal 在 close() 或新一轮 run() 时中止。 */
+export type RoomIdResolver = (roomId: string | number, signal: AbortSignal) => Promise<string | number>;
+
 export interface ClientOptions {
   ignore?: MessageEventType[];
   /** 连接建立前失败的最大重试次数（自动轮换弹幕端口），0 关闭重试。默认 5 */
   retries?: number;
   /** 相邻两次连接尝试的间隔 ms。默认 1000 */
   retryDelay?: number;
+  /** 连接前解析真实 rid。Node.js 默认开启，浏览器及自定义 WebSocket URL 默认关闭。 */
+  resolveRoomId?: boolean;
+  /** 自定义解析器（浏览器可接入同源服务）；设置后默认开启解析。 */
+  roomIdResolver?: RoomIdResolver;
 }
 
 // ─── WebSocket Abstraction ────────────────────────────────────────────────────

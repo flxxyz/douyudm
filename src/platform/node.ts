@@ -1,11 +1,13 @@
 export { Client, default } from '../index';
 export { STT } from '../core/stt';
 export { Packet } from '../core/packet';
+export { resolveRoomId } from '../core/room';
 export * from '../core/danmaku';
 export type {
   ClientOptions,
   IWebSocket,
   WebSocketFactory,
+  RoomIdResolver,
   MessageEventType,
   RecordMeta,
   RecordedMessage,

@@ -34,6 +34,9 @@ pnpm add -g douyudm
 # 监听房间弹幕
 douyudm -i 9999
 
+# 已知真实 rid，跳过靓号查询（不发起额外 HTTP 请求）
+douyudm -i 6979222 --no-resolve-room-id
+
 # 忽略指定事件
 douyudm -i 9999 --ignore mrkl,uenter
 
@@ -114,6 +117,40 @@ client.run()
 
 完整示例见 [examples/](examples/) 目录。
 
+### 靓号与真实房间号
+
+Node.js 下 `Client` 和 CLI 默认会在连接前把靓号转换为真实 rid。例如 `6657`
+对应的实际房间为 `6979222`，仅使用靓号登录可能收到 `loginres` 却收不到 `chatmsg`。
+现有的 `new Client(6657); client.run()` 用法无需修改。
+
+解析从 `https://m.douyu.com/<roomId>` 的房间元数据读取真实 rid，超时为 10 秒。
+成功映射在当前进程内缓存 10 分钟，最多保存 256 项；端口重试复用本次解析结果，
+不会再次请求页面。解析失败会触发 `error`，不会继续登录未经确认的房间。
+
+已知真实 rid 时可以完全跳过查询；也可以接入自己的持久缓存或轻量解析服务：
+
+```javascript
+const client = new Client(6979222, { resolveRoomId: false })
+
+// 提供 roomIdResolver 后默认启用解析；signal 可用于取消自定义请求。
+const cachedClient = new Client(6657, {
+  roomIdResolver: async (id, signal) => {
+    const response = await fetch(`/api/douyu/resolve?id=${encodeURIComponent(id)}`, { signal })
+    if (!response.ok) throw new Error(`lookup failed: ${response.status}`)
+    return (await response.json()).rid
+  },
+})
+```
+
+`client.requestedRoomId` 保留输入值；`client.roomId` 在解析成功后变为真实 rid。
+CLI 的录制文件在连接成功时写入元信息，`rid` 也使用真实房间号。
+独立解析可使用 `const { resolveRoomId } = require('douyudm')`，然后调用
+`await resolveRoomId(6657)`。
+
+浏览器受跨域限制，默认不请求斗鱼移动页：请传真实 rid，或用 `roomIdResolver`
+接入自己的同源服务。`run(customUrl)` 默认也跳过查询；可显式设置
+`resolveRoomId: true` 启用。调用 `close()` 或再次 `run()` 会取消旧查询并忽略迟到的结果。
+
 ## 选项
 
 ```typescript
@@ -126,6 +163,8 @@ new Client(roomId, opts?)
 | `opts.ignore` | `string[]` | `[]` | 忽略的消息事件列表 |
 | `opts.retries` | `number` | `5` | 连接建立前失败的最大重试次数（自动轮换 6 个弹幕端口），`0` 关闭 |
 | `opts.retryDelay` | `number` | `1000` | 相邻两次连接尝试的间隔（ms） |
+| `opts.resolveRoomId` | `boolean` | Node.js 为 `true` | 连接前解析靓号；浏览器及自定义 URL 默认关闭 |
+| `opts.roomIdResolver` | `(id, signal) => Promise<string \| number>` | 内置移动页解析器 | 自定义真实 rid 查询或缓存；提供后默认启用解析 |
 
 斗鱼的 6 个弹幕端口在部分网络下不是每个都能连上。连接建立**之前**失败时会自动换一个端口重试，重试过程中不触发 `error` 事件，次数全部用完还连不上才触发。连接建立**之后**的断开不会自动重连。
 
