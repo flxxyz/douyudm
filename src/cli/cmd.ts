@@ -41,6 +41,7 @@ program
   .option('-i, --id <number>', '输入房间id')
   .option('-j, --uenter', '忽略用户进入房间', false)
   .option('--ignore [list]', '忽略掉一些消息事件', '')
+  .option('--no-resolve-room-id', '输入为真实 rid 时跳过靓号解析')
   .option('--record [file]', '同时录制为 JSONL（缺省文件名 douyudm-<房间id>-<时间戳>.jsonl）')
   .option('--record-events <list>', '要录制的消息事件，逗号分隔', 'chatmsg')
   .action((opts: {
@@ -49,6 +50,7 @@ program
     ignore: string;
     record?: string | boolean;
     recordEvents: string;
+    resolveRoomId: boolean;
   }) => {
     if (!opts.id) {
       // 与旧版 requiredOption 的报错文案保持一致
@@ -59,14 +61,22 @@ program
     const ignoreList = opts.ignore.split(',').filter(Boolean) as MessageEventType[];
     if (opts.uenter) ignoreList.push('uenter');
 
-    const client = new Client(opts.id, { ignore: ignoreList });
+    const client = new Client(opts.id, { ignore: ignoreList, resolveRoomId: opts.resolveRoomId });
+    client.on('error', (_client, error) => {
+      console.error(error);
+      process.exitCode = 1;
+      client.close();
+    });
 
     if (opts.record !== undefined) {
       const file = typeof opts.record === 'string'
         ? opts.record
         : `douyudm-${opts.id}-${Date.now()}.jsonl`;
       const stream = createWriteStream(file, { flags: 'a' });
-      stream.write(serializeRecordLine(createRecordMeta(opts.id, Date.now())));
+      client.on('connect', (c) => {
+        stream.write(serializeRecordLine(createRecordMeta(c.roomId, Date.now())));
+      });
+      client.on('error', () => stream.end());
 
       const events = [...new Set(opts.recordEvents.split(',').filter(Boolean))] as MessageEventType[];
       const defaults = createDefaultMessageEvents();

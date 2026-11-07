@@ -38,6 +38,8 @@ export interface ClientOptions {
   retries?: number;
   /** 相邻两次连接尝试的间隔 ms。默认 1000 */
   retryDelay?: number;
+  /** 连接前解析真实 rid。Node.js 默认开启，浏览器及自定义 WebSocket URL 默认关闭。 */
+  resolveRoomId?: boolean;
 }
 
 // ─── WebSocket Abstraction ────────────────────────────────────────────────────

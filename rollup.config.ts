@@ -40,6 +40,8 @@ const config = [
     output: {
       file: 'dist/index.esm.js',
       format: 'esm',
+      // The shared Node WebSocket factory uses require('ws'); ESM has no global require.
+      banner: "import { createRequire } from 'node:module';\nconst require = createRequire(import.meta.url);",
     },
     external: ['ws', 'lowdb', 'lowdb/adapters/FileSync'],
     plugins: basePlugins(),

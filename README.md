@@ -34,6 +34,9 @@ pnpm add -g douyudm
 # 监听房间弹幕
 douyudm -i 9999
 
+# 已知真实 rid，跳过靓号查询（不发起额外 HTTP 请求）
+douyudm -i 6979222 --no-resolve-room-id
+
 # 忽略指定事件
 douyudm -i 9999 --ignore mrkl,uenter
 
@@ -114,6 +117,24 @@ client.run()
 
 完整示例见 [examples/](examples/) 目录。
 
+### 靓号与真实房间号
+
+Node.js 下 `Client` 和 CLI 默认会在连接前把靓号转换为真实 rid。例如 `6657`
+对应的实际房间为 `6979222`，仅使用靓号登录可能收到 `loginres` 却收不到 `chatmsg`。
+现有的 `new Client(6657); client.run()` 用法无需修改。
+
+连接前请求一次 `https://m.douyu.com/<roomId>`，从房间元数据读取真实 rid，超时为 10 秒。
+端口重试直接复用本次查询结果，不重复请求；不缓存跨连接的房间映射。
+解析失败通过 `error` 事件报告，不继续登录未经确认的房间。
+
+已知真实 rid 时可跳过查询：`new Client(6979222, { resolveRoomId: false })`；
+CLI 对应 `--no-resolve-room-id`。`client.roomId` 在解析成功后变为真实 rid，
+CLI 录制文件头也使用真实 rid。
+
+浏览器受跨域限制，默认不查询移动页，请传入真实 rid。
+`run(customUrl)` 默认也跳过查询，可显式设置 `resolveRoomId: true` 启用。
+调用 `close()` 或再次 `run()` 会取消旧查询并忽略迟到的结果。
+
 ## 选项
 
 ```typescript
@@ -126,6 +147,7 @@ new Client(roomId, opts?)
 | `opts.ignore` | `string[]` | `[]` | 忽略的消息事件列表 |
 | `opts.retries` | `number` | `5` | 连接建立前失败的最大重试次数（自动轮换 6 个弹幕端口），`0` 关闭 |
 | `opts.retryDelay` | `number` | `1000` | 相邻两次连接尝试的间隔（ms） |
+| `opts.resolveRoomId` | `boolean` | Node.js 为 `true` | 连接前解析靓号；浏览器及自定义 URL 默认关闭 |
 
 斗鱼的 6 个弹幕端口在部分网络下不是每个都能连上。连接建立**之前**失败时会自动换一个端口重试，重试过程中不触发 `error` 事件，次数全部用完还连不上才触发。连接建立**之后**的断开不会自动重连。
 
@@ -220,7 +242,22 @@ npm run build
 
 # 测试（含覆盖率）
 npm run test:coverage
+
+# 构建后验证 CJS、原生 ESM、CLI 和 TypeScript 包入口（使用本地 WebSocket 服务）
+npm run test:entrypoints
+
+# 真实浏览器端到端测试（需公网及正在产生弹幕的真实 rid）
+pnpm exec playwright install chromium
+DOUYUDM_TEST_ROOM=138243 npm run test:browser
+# 已安装系统 Chromium 时可省略下载，设置 CHROMIUM_PATH=/usr/bin/chromium
 ```
+
+浏览器测试使用当前分支构建替换示例页中的 douyudm CDN 脚本，其他 CDN 资源仍正常加载并校验完整性。
+它验证真实 WebSocket 弹幕、IndexedDB 录制、刷新保留、JSONL 下载、ASS 转换、历史删除，
+以及环境允许时直接打开 HTML 文件的页面加载和转换（管理员策略禁止 `file://` 时单独报告跳过）。
+该测试需要先安装 Chromium；
+`DOUYUDM_TEST_ROOM` 应为当前活跃房间的真实 rid，房间无弹幕时会报告超时，不算通过。
+Playwright 仅用于开发测试，不增加运行时依赖。
 
 ## 后话
 

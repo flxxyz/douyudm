@@ -11,6 +11,7 @@ import type {
 import { STT } from './core/stt';
 import { Packet } from './core/packet';
 import { HEARTBEAT_INTERVAL } from './core/config';
+import { resolveRoomId } from './core/room';
 import { createDefaultMessageEvents, type MessageHandler, type MessageEventMap } from './events/messageEvent';
 
 export { STT } from './core/stt';
@@ -80,7 +81,10 @@ function toError(event: unknown): Error {
 }
 
 export class Client implements IClient {
-  readonly roomId: string | number;
+  private readonly _requestedRoomId: string | number;
+  private _roomId: string | number;
+  /** 解析成功后为真实 rid；解析前为传入的房间号。 */
+  get roomId(): string | number { return this._roomId; }
 
   private _ws: IWebSocket | null = null;
   private _heartbeatTask: ReturnType<typeof setInterval> | null = null;
@@ -95,13 +99,17 @@ export class Client implements IClient {
   private _portQueue: number[] = [];
   private _lastPort = 0;
   private _customUrl?: string;
+  private _resolveRoomId?: boolean;
+  private _resolveController: AbortController | null = null;
+  private _runId = 0;
 
   constructor(
     roomId: string | number,
     opts: ClientOptions = {},
     wsFactory?: WebSocketFactory,
   ) {
-    this.roomId = roomId;
+    this._requestedRoomId = this._roomId = roomId;
+    this._resolveRoomId = opts.resolveRoomId;
     this._ignore = new Set(opts.ignore ?? []);
     this._retries = opts.retries ?? 5;
     this._retryDelay = opts.retryDelay ?? 1000;
@@ -122,14 +130,36 @@ export class Client implements IClient {
   }
 
   run(url?: string): void {
+    const runId = ++this._runId;
+    this._resolveController?.abort();
+    this._resolveController = null;
     this._cancelRetry();
+    this._stopConnection();
     this._customUrl = url;
     this._retriesLeft = this._retries;
     this._portQueue = [];
-    this._connect();
+    const shouldResolve = this._resolveRoomId ??
+      (!url && typeof process !== 'undefined' && !!process.versions?.node);
+    if (!shouldResolve) {
+      this._roomId = this._requestedRoomId;
+      this._connect();
+      return;
+    }
+    const controller = new AbortController();
+    this._resolveController = controller;
+    void resolveRoomId(this._requestedRoomId, controller.signal).then((rid) => {
+      if (runId !== this._runId) return;
+      this._roomId = rid;
+      this._resolveController = null;
+      this._connect();
+    }).catch((error: unknown) => {
+      if (runId !== this._runId) return;
+      this._resolveController = null;
+      this._emit('error', toError(error));
+    });
   }
 
-  private _connect(): void {
+  private _stopConnection(): void {
     // 重复连接：先拆掉旧连接，避免泄漏和旧 socket 事件串扰
     if (this._ws) {
       this._teardown(this._ws);
@@ -139,7 +169,10 @@ export class Client implements IClient {
       clearInterval(this._heartbeatTask);
       this._heartbeatTask = null;
     }
+  }
 
+  private _connect(): void {
+    this._stopConnection();
     const wsUrl = this._customUrl ?? `wss://danmuproxy.douyu.com:${this._nextPort()}/`;
     const ws = this._wsFactory(wsUrl);
     this._ws = ws;
@@ -224,6 +257,9 @@ export class Client implements IClient {
   }
 
   close(): void {
+    ++this._runId;
+    this._resolveController?.abort();
+    this._resolveController = null;
     this._cancelRetry();
     this._logout();
     const ws = this._ws;
